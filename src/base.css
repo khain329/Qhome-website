@@ -208,12 +208,25 @@ header.site.scrolled{background:color-mix(in srgb,var(--paper) 86%,transparent);
   .room-end{width:clamp(250px,34svh,340px)}
 }
 .rooms-progress i{position:absolute;inset:0;background:var(--copper);transform-origin:left;transform:scaleX(0)}
+/* dải hạng phòng: cuộn ngang tự nhiên (vuốt trackpad, Shift + lăn chuột, kéo chuột, nút mũi tên), cuộn dọc đi qua bình thường */
+.rooms-scroller{overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:max(var(--gutter-l), calc((100vw - var(--max))/2 + 32px)) var(--gutter-r);-webkit-overflow-scrolling:touch;scrollbar-width:none;cursor:grab}
+.rooms-scroller::-webkit-scrollbar{display:none}
+.rooms-scroller.dragging{cursor:grabbing;scroll-snap-type:none;user-select:none}
+.rooms-scroller.dragging a,.rooms-scroller.dragging .room-media{pointer-events:none}
+.room,.room-end{scroll-snap-align:start}
+.rooms-track{padding-right:max(var(--gutter-r), calc((100vw - var(--max))/2 + 32px))}
+.rooms-ctrl{display:flex;align-items:center;gap:24px;margin-top:32px}
+.rooms-ctrl .rooms-progress{flex:1;margin-top:0}
+.rooms-arrows{display:flex;gap:10px}
+.rooms-arrow{width:48px;height:48px;border-radius:50%;border:1px solid rgba(242,227,207,.3);display:grid;place-items:center;color:var(--cream-on-dark);transition:background .35s var(--ease),color .35s,border-color .35s,opacity .3s}
+.rooms-arrow:hover{background:var(--cream-on-dark);color:var(--espresso);border-color:var(--cream-on-dark)}
+.rooms-arrow svg{width:17px;height:17px}
+#roomsPrev svg{transform:scaleX(-1)}
+.rooms-arrow:disabled{opacity:.3;pointer-events:none}
 @media (max-width:899px){
-  .rooms-scroller{overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:var(--gutter-l) var(--gutter-r);-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  .rooms-scroller::-webkit-scrollbar{display:none}
-  .room,.room-end{scroll-snap-align:start}
   .rooms-track{padding-left:var(--gutter-l)}
-  .rooms-progress{display:none}
+  .rooms-scroller{scroll-padding-inline:var(--gutter-l) var(--gutter-r)}
+  .rooms-arrows{display:none}
 }
 
 /* ---------- gallery ---------- */
@@ -469,8 +482,18 @@ html.curtain-lock,html.curtain-lock body{overflow:hidden}
 @media (max-width:620px){.br-top{grid-template-columns:1fr}.br-media{aspect-ratio:4/3.2}}
 
 /* rooms: branch chips */
+/* chip chi nhánh dưới mỗi hạng phòng: link tới đúng hạng phòng của chi nhánh trên trang Phòng */
+.tier-chip{position:relative;display:inline-flex;align-items:center;gap:0;font-size:12px;padding:6px 12px;border:1px solid rgba(242,227,207,.22);border-radius:999px;color:var(--cream-on-dark);overflow:hidden;isolation:isolate;
+  transition:color .4s var(--ease),border-color .4s var(--ease),padding .45s var(--ease)}
+.tier-chip::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--brc);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.tier-chip .dot{transition:box-shadow .4s}
+.tier-chip .tc-arr{width:0;height:12px;opacity:0;margin-left:0;transition:width .45s var(--ease),opacity .3s,margin .45s var(--ease)}
+.tier-chip:hover,.tier-chip:focus-visible{border-color:var(--brc);color:#fff}
+.tier-chip:hover::before,.tier-chip:focus-visible::before{transform:scaleX(1)}
+.tier-chip:hover .dot,.tier-chip:focus-visible .dot{box-shadow:0 0 0 1.5px #fff}
+.tier-chip:hover .tc-arr,.tier-chip:focus-visible .tc-arr{width:12px;opacity:1;margin-left:7px}
 .room .tags span{display:inline-flex;align-items:center}
-.room .tags .dot{width:8px;height:8px;margin-right:7px;top:0;box-shadow:0 0 0 1.5px rgba(242,227,207,.55)}
+.room .tags .dot,.tier-chip .dot{width:8px;height:8px;margin-right:7px;top:0;box-shadow:0 0 0 1.5px rgba(242,227,207,.55)}
 .room-foot b{color:var(--cream-on-dark);font-weight:600}
 
 /* contact: hotlines */

@@ -252,6 +252,24 @@
     }
   }
 
+  /* ---------- trang chủ: dải hạng phòng cuộn ngang tự nhiên ---------- */
+  const rsc = $('.rooms-scroller');
+  if (rsc) {
+    const bar = $('.rooms-progress i'), cards = $$('.room, .room-end', rsc), prev = $('#roomsPrev'), next = $('#roomsNext');
+    const upd = () => { const max = rsc.scrollWidth - rsc.clientWidth; const p = max > 0 ? rsc.scrollLeft / max : 0; if (bar) bar.style.transform = 'scaleX(' + p.toFixed(3) + ')'; if (prev) prev.disabled = rsc.scrollLeft < 4; if (next) next.disabled = rsc.scrollLeft > max - 4; };
+    rsc.addEventListener('scroll', () => requestAnimationFrame(upd), { passive: true }); addEventListener('resize', upd); upd();
+    const step = d => { const pad = parseFloat(getComputedStyle(rsc).scrollPaddingLeft) || 0; const x = rsc.scrollLeft + pad + 2; const cur = cards.findIndex(c => c.offsetLeft + c.offsetWidth / 2 > x); const t = cards[Math.max(0, Math.min(cards.length - 1, (cur < 0 ? cards.length - 1 : cur) + d))]; rsc.scrollTo({ left: t.offsetLeft - pad, behavior: reduce ? 'auto' : 'smooth' }); };
+    if (prev) prev.addEventListener('click', () => step(-1));
+    if (next) next.addEventListener('click', () => step(1));
+    if (finePointer) {
+      let d = null, moved = false;
+      rsc.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0) return; d = { x: e.clientX, l: rsc.scrollLeft }; moved = false; });
+      addEventListener('pointermove', e => { if (!d) return; const dx = e.clientX - d.x; if (!moved && Math.abs(dx) > 5) { moved = true; rsc.classList.add('dragging'); } if (moved) rsc.scrollLeft = d.l - dx; });
+      addEventListener('pointerup', () => { if (!d) return; d = null; if (moved) { setTimeout(() => rsc.classList.remove('dragging'), 30); step(0); } });
+      rsc.addEventListener('click', e => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+    }
+  }
+
   /* ---------- trang Phòng: carousel 5 chi nhánh + ngăn danh sách phòng ---------- */
   const rcTrack = $('#rcTrack');
   if (rcTrack) {
@@ -306,7 +324,7 @@
       $('#rsPage').href = b.slug + '.html'; $('#rsZalo').href = 'https://zalo.me/' + b.phone;
       $('#rsRooms').innerHTML = TIERS.concat([...new Set(rooms.map(r => r.tier))].filter(t => !TIERS.includes(t))).filter(t => rooms.some(r => r.tier === t)).map(t => {
         const list = rooms.map((r, k) => [r, k]).filter(([r]) => r.tier === t);
-        return '<div class="rgroup"><p class="rgroup-t">' + t + ' · ' + list.length + ' phòng</p><div class="rgrid">' + list.map(([r, k]) =>
+        return '<div class="rgroup" data-tier="' + t.toLowerCase() + '"><p class="rgroup-t">' + t + ' · ' + list.length + ' phòng</p><div class="rgrid">' + list.map(([r, k]) =>
           '<button class="rtile" type="button" data-room="' + k + '" aria-label="Xem ảnh phòng ' + r.no + ', ' + r.tier + (r.m2 ? ', ' + r.m2 + ' mét vuông' : '') + '">' +
           '<span class="ph" data-v="' + r.tv + '"></span><span class="rt-body"><b>' + r.no + '</b><small>' + (r.m2 ? r.m2 + 'm²' : r.tier) + '</small></span></button>').join('') + '</div></div>';
       }).join('') || '<p class="br-empty">Ảnh phòng của chi nhánh này đang được cập nhật.</p>';
@@ -336,9 +354,10 @@
         if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); } }
     });
     /* mở sẵn theo địa chỉ, ví dụ phong.html#bau-cat */
-    const hb = BR.findIndex(b => '#' + b.slug === location.hash);
+    const [hSlug, hTier] = decodeURIComponent(location.hash.slice(1)).split(':');
+    const hb = BR.findIndex(b => b.slug === hSlug);
     setCur(hb >= 0 ? hb : 0);
-    requestAnimationFrame(() => { rcGo(hb >= 0 ? hb : 0, false); if (hb >= 0 && !BR[hb].soon && !ADMIN) setTimeout(() => openSheet(hb, slides[hb].querySelector('.rc-open')), 400); });
+    requestAnimationFrame(() => { rcGo(hb >= 0 ? hb : 0, false); if (hb >= 0 && !BR[hb].soon && !ADMIN) setTimeout(() => { openSheet(hb, slides[hb].querySelector('.rc-open')); if (hTier) setTimeout(() => { const g = $('.rgroup[data-tier="' + hTier.toLowerCase() + '"]', sheet); if (!g) return; panel.scrollTo({ top: g.offsetTop - 24, behavior: reduce ? 'auto' : 'smooth' }); g.classList.add('flash'); setTimeout(() => g.classList.remove('flash'), 2600); }, 750); }, 400); });
   }
 
   /* ---------- link nội trang (#...) ---------- */
@@ -511,12 +530,6 @@
        .fromTo('.door-quote > div', { opacity: 0, y: 40 }, { opacity: 1, y: 0, ease: 'power2.out', duration: .45 }, .55);
     });
 
-    if (has('.rooms-track')) mm.add('(min-width: 900px)', () => {
-      const track = $('.rooms-track');
-      const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
-      gsap.to(track, { x: () => -dist(), ease: 'none', scrollTrigger: { trigger: '.rooms', start: 'top top', end: () => '+=' + dist(), pin: true, scrub: 1, invalidateOnRefresh: true } });
-      gsap.to('.rooms-progress i', { scaleX: 1, ease: 'none', scrollTrigger: { trigger: '.rooms', start: 'top top', end: () => '+=' + dist(), scrub: true } });
-    });
   }
 
   /* ===================== TRANG CÂU CHUYỆN ===================== */

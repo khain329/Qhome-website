@@ -152,7 +152,10 @@ def tier_cards():
         m2 = sorted({r['m2'] for _, r in rs if r['m2']})
         size = (f'{m2[0]}m²' if len(m2) == 1 else f'{m2[0]}–{m2[-1]}m²') if m2 else ''
         low = min(row[1][0] for b in B for row in b['rows'] if row[0] == t)
-        chips = ''.join(f'<span>{dot(b)}{b["name"]}</span>' for b in brs)
+        chips = ''.join(
+            f'<a class="tier-chip" style="--brc:{b["c"]}" href="{b["slug"]}.html" title="{esc(b["name"])} sắp mở cửa">{dot(b)}<span>{esc(b["name"])}</span><svg class="tc-arr"><use href="#arrow"/></svg></a>' if b['soon'] else
+            f'<a class="tier-chip" style="--brc:{b["c"]}" href="phong.html#{b["slug"]}:{t.lower()}" aria-label="Xem phòng {t} tại {esc(b["name"])}">{dot(b)}<span>{esc(b["name"])}</span><svg class="tc-arr"><use href="#arrow"/></svg></a>'
+            for b in brs)
         v, cap = pv[t]
         meta = f'<span>{len(rs)}+ phòng</span>' + (f'<span>{size}</span>' if size else '')
         out.append(f'''
@@ -168,6 +171,7 @@ def home_main():
     # thẻ hạng phòng
     a = m.index('<div class="rooms-track">') + len('<div class="rooms-track">'); b = m.index('<div class="room-end">')
     m = m[:a] + tier_cards() + '\n          ' + m[b:]
+    m = m.replace('<div class="wrap"><div class="rooms-progress"><i></i></div></div>', '<div class="wrap rooms-ctrl"><div class="rooms-progress"><i></i></div><div class="rooms-arrows"><button class="rooms-arrow" id="roomsPrev" type="button" aria-label="Hạng phòng trước"><svg><use href="#arrow"/></svg></button><button class="rooms-arrow" id="roomsNext" type="button" aria-label="Hạng phòng sau"><svg><use href="#arrow"/></svg></button></div></div>', 1)
     # gallery & door: ảnh thật
     G = [('g1', 'p-ste', 'Bồn tắm · Suite 302 Sư Vạn Hạnh'), ('g2', 'p-32', 'Bồn tắm giữa vườn · Ba Tháng Hai'),
          ('g3', 'p-jungle', 'Bồn tắm đá · Suite 401 Ba Tháng Hai'), ('g4', 'p-wave', 'Gương lượn sóng · Premium 402 Ba Tháng Hai'),
