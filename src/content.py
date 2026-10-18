@@ -64,10 +64,16 @@ def default_branches():
 
 
 # thứ tự chi nhánh mặc định; khi người quản trị tự sắp xếp trong /admin thì giữ theo /admin (branchOrder = "manual")
-BRANCH_ORDER = ['Lê Đại Hành', 'Sư Vạn Hạnh', 'Thích Quảng Đức', 'Ba Tháng Hai', 'Bàu Cát']
+BRANCH_ORDER = [['le dai hanh'], ['su van hanh'], ['thich quang duc'], ['ba thang hai', '3/2', '3-2', '3 thang 2'], ['bau cat']]
+def _plain(t):
+    import unicodedata
+    t = unicodedata.normalize('NFD', (t or '').lower().replace('đ', 'd'))
+    return ' '.join(''.join(c for c in t if unicodedata.category(c) != 'Mn').split())
 def apply_order(branches, flag):
     if flag == 'manual': return branches
-    rank = lambda b: BRANCH_ORDER.index(b.get('name')) if b.get('name') in BRANCH_ORDER else len(BRANCH_ORDER)
+    def rank(b):
+        n = _plain(b.get('name'))
+        return next((i for i, names in enumerate(BRANCH_ORDER) if n in names), len(BRANCH_ORDER))
     return sorted(branches, key=rank)
 
 

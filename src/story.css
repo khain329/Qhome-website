@@ -108,14 +108,22 @@
 .s-cta .btn-solid:hover{background:#fff}
 .home-story-link{align-self:flex-start;margin-top:4px}
 
-/* video TikTok */
-.s-video-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(325px,420px);gap:clamp(36px,6vw,96px);align-items:center}
+/* video hậu trường */
+.s-video-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,380px);gap:clamp(36px,6vw,96px);align-items:center}
 .s-video-copy{display:flex;flex-direction:column;gap:20px;align-items:flex-start}
 .s-video-copy .display em{font-style:italic;font-weight:300;color:var(--wood)}
-.s-video-frame{position:relative;justify-self:center;width:100%;max-width:420px;min-height:740px;border-radius:28px;padding:10px;background:var(--espresso);box-shadow:0 40px 80px -40px rgba(42,30,22,.55);display:flex;align-items:center;justify-content:center;overflow:hidden}
-.s-video-frame::before{content:"Đang tải video…";position:absolute;inset:0;display:grid;place-items:center;color:var(--muted-on-dark);font-size:13px;letter-spacing:.08em;z-index:0}
-.s-video-frame .tiktok-embed{position:relative;z-index:1;margin:0!important;width:100%;border-radius:20px;overflow:hidden;background:var(--espresso)}
-.s-video-frame .tiktok-embed section{padding:24px;color:var(--cream-on-dark);font-size:14px;line-height:1.6}
-.s-video-frame .tiktok-embed section a{color:#E9B984}
-.s-video-frame.loaded::before{display:none}
-@media (max-width:900px){.s-video-grid{grid-template-columns:minmax(0,1fr)}.s-video-frame{min-height:0;max-width:380px;padding:8px}}
+.s-video-frame{position:relative;justify-self:center;width:100%;max-width:380px;aspect-ratio:9/16;border-radius:30px;overflow:hidden;background:var(--espresso);
+  box-shadow:0 0 0 8px var(--espresso),0 50px 90px -40px rgba(42,30,22,.6)}
+.s-vid{display:block;width:100%;height:100%;object-fit:cover;cursor:pointer;background:var(--espresso)}
+.s-vid-play{position:absolute;left:50%;top:50%;width:76px;height:76px;margin:-38px 0 0 -38px;border-radius:50%;background:rgba(242,227,207,.92);color:var(--espresso);display:grid;place-items:center;
+  box-shadow:0 14px 34px -12px rgba(0,0,0,.55);transition:opacity .4s var(--ease),transform .5s var(--ease)}
+.s-vid-play svg{width:30px;height:30px;margin-left:4px}
+.s-vid-play:hover{transform:scale(1.06)}
+.s-video-frame.is-playing .s-vid-play{opacity:0;transform:scale(.8);pointer-events:none}
+.s-vid-sound{position:absolute;right:14px;bottom:14px;width:44px;height:44px;border-radius:50%;background:rgba(17,11,8,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#F2E3CF;display:grid;place-items:center;transition:background .3s}
+.s-vid-sound:hover{background:rgba(17,11,8,.8)}
+.s-vid-sound svg{width:22px;height:22px}
+.s-vid-sound .on{display:none}
+.s-vid-sound[aria-pressed="true"] .on{display:inline}
+.s-vid-sound[aria-pressed="true"] .off{display:none}
+@media (max-width:900px){.s-video-grid{grid-template-columns:minmax(0,1fr)}.s-video-frame{max-width:340px}}

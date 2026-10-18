@@ -9,6 +9,7 @@ os.environ['QH_ROOT'] = ROOT
 sys.path.insert(0, os.path.join(ROOT, 'src'))
 import content as CT
 P = json.load(open(f'{ROOT}/src/parts.json', encoding='utf-8'))
+P['badge'] = ''  # đã bỏ nhãn "Mockup · ảnh & giá tạm"
 C = CT.load_content()
 B = CT.normalize(C['branches'])
 TIERS = CT.TIERS
@@ -198,8 +199,6 @@ def home_main():
     anchor = '<ul class="pnotes" id="brNotes">'
     i = m.index(anchor); j = m.index('</div>', m.index('</ul>', i)) + len('</div>')
     m = m[:j] + rooms_html + m[j:]
-    # bỏ mục Tiện nghi
-    m = re.sub(r'\s*<!-- AMENITIES -->\s*<section class="section amen" id="tien-nghi">.*?</section>', '', m, count=1, flags=re.S)
     # nút dẫn sang trang Phòng từ mục Hạng phòng
     m = re.sub(r'(<section class="rooms on-dark" id="phong">.*?<div class="wrap rooms-head">.*?)<p data-reveal>(.*?)</p>', lambda mo: mo.group(1) + f'<div class="rooms-head-side" data-reveal><p>{mo.group(2)}</p><a class="btn btn-line magnetic rooms-all" href="phong.html">Xem phòng từng chi nhánh {ARROW}</a></div>', m, count=1, flags=re.S)
     # nút dẫn sang trang Câu chuyện
@@ -304,13 +303,14 @@ def story_main():
   <section class="section s-video" aria-labelledby="videoT">
     <div class="wrap s-video-grid">
       <div class="s-video-copy">
-        <p class="eyebrow" data-reveal>Năm ngôi nhà trong một phút</p>
-        <h2 class="display" id="videoT" data-split>Ghé qua cả năm nhà, <em>trước khi về một nhà.</em></h2>
-        <p class="lede" data-reveal>Một vòng ngắn qua Lê Đại Hành, Sư Vạn Hạnh, Thích Quảng Đức, Ba Tháng Hai và Bàu Cát. Mỗi nơi một bảng màu, cùng một cảm giác được về nhà.</p>
-        <a class="btn btn-line magnetic" href="https://www.tiktok.com/@qhome.staycation" target="_blank" rel="noopener" data-reveal>Xem thêm trên TikTok {ARROW}</a>
+        <p class="eyebrow" data-reveal>Hậu trường</p>
+        <h2 class="display" id="videoT" data-split>Mọi trải nghiệm tốt <em>bắt đầu từ một chi tiết nhỏ.</em></h2>
+        <p class="lede" data-reveal>Từ những buổi đi tìm chiếc giường chuẩn 5 sao, bảng ý tưởng dán kín tường, đến lúc tự tay khiêng từng tấm nệm vào phòng. Vì với Qhome, chiếc giường là nơi nâng niu cảm xúc của bạn sau một ngày dài.</p>
       </div>
       <div class="s-video-frame" data-reveal>
-        <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@qhome.staycation/video/7664579629482609940" data-video-id="7664579629482609940" style="max-width: 605px;min-width: 325px;" > <section> <a target="_blank" title="@qhome.staycation" href="https://www.tiktok.com/@qhome.staycation?refer=embed">@qhome.staycation</a> Tổng quan 5 chi nhánh của Q Home. ❤️🏡 <a title="qhomestaycation" target="_blank" href="https://www.tiktok.com/tag/qhomestaycation?refer=embed">#QHomeStaycation</a> <a title="staycationsaigon" target="_blank" href="https://www.tiktok.com/tag/staycationsaigon?refer=embed">#StaycationSaiGon</a> <a title="netflixandchill" target="_blank" href="https://www.tiktok.com/tag/netflixandchill?refer=embed">#NetflixandChill</a> <a title="hotel" target="_blank" href="https://www.tiktok.com/tag/hotel?refer=embed">#hotel</a> <a title="couple" target="_blank" href="https://www.tiktok.com/tag/couple?refer=embed">#couple</a> <a target="_blank" title="♬ âm thanh gốc  - qhome.staycation" href="https://www.tiktok.com/music/âm-thanh-gốc-qhomestaycation-7664579694815529748?refer=embed">♬ âm thanh gốc  - qhome.staycation</a> </section> </blockquote>
+        <video class="s-vid" id="sVid" src="assets/video/qhome-hau-truong.mp4" poster="assets/video/qhome-hau-truong.webp" playsinline muted loop preload="none" aria-label="Video hậu trường Qhome: đi tìm chiếc giường chuẩn 5 sao"></video>
+        <button class="s-vid-play" id="sVidPlay" type="button" aria-label="Phát video"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
+        <button class="s-vid-sound" id="sVidSound" type="button" aria-pressed="false" aria-label="Bật tiếng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path class="on" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path class="off" d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
       </div>
     </div>
   </section>
@@ -732,6 +732,16 @@ json.dump(C, open(f'{ROOT}/site/admin/content.json', 'w', encoding='utf-8'), ens
 json.dump([{'key': 'home', 'file': 'index.html', 'name': 'Trang chủ'}, {'key': 'story', 'file': 'cau-chuyen.html', 'name': 'Câu chuyện'}, {'key': 'rooms', 'file': 'phong.html', 'name': 'Phòng'}, {'key': 'faq', 'file': 'faq.html', 'name': 'Hỏi đáp'}] +
           [{'key': b['slug'], 'file': b['slug'] + '.html', 'name': b['name'], 'branch': i} for i, b in enumerate(B)],
           open(f'{ROOT}/site/admin/pages.json', 'w', encoding='utf-8'), ensure_ascii=False)
+# chuyển hướng link trang chi nhánh cũ khi đổi tên chi nhánh (vd ba-thang-hai.html -> 3-2.html)
+_cur = [b['slug'] for b in B]
+_redir = []
+for x in json.load(open(f'{ROOT}/src/branches.json', encoding='utf-8')):
+    o = CT.slugify(x['name'])
+    if o in _cur: continue
+    # tìm chi nhánh hiện tại cùng số điện thoại (định danh không đổi khi đổi tên)
+    hit = next((b for b in B if b['phone'] == re.sub(r'\D', '', x['phone'])), None)
+    if hit: _redir.append(f'/{o}.html  /{hit["slug"]}.html  301')
+open(f'{ROOT}/site/_redirects', 'w', encoding='utf-8').write('\n'.join(_redir) + ('\n' if _redir else ''))
 # xoá trang chi nhánh cũ không còn dùng
 keep = {'index.html', 'cau-chuyen.html', 'phong.html', 'faq.html'} | {n for n, _, _ in branch_pages}
 for f in os.listdir(f'{ROOT}/site'):

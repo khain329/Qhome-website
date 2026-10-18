@@ -161,10 +161,11 @@ function fromPlain(text, def) {
 
 /* ---------------- dữ liệu ---------------- */
 /* thứ tự chi nhánh mặc định, giống src/content.py; sau khi tự sắp xếp trong /admin thì giữ theo ý người quản trị */
-const BRANCH_ORDER = ['Lê Đại Hành', 'Sư Vạn Hạnh', 'Thích Quảng Đức', 'Ba Tháng Hai', 'Bàu Cát'];
+const BRANCH_ORDER = [['le dai hanh'], ['su van hanh'], ['thich quang duc'], ['ba thang hai', '3/2', '3-2', '3 thang 2'], ['bau cat']];
+const plainName = t => String(t || '').toLowerCase().replace(/đ/g, 'd').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
 function applyOrder(c) {
   if (c.branchOrder === 'manual') return c;
-  const rank = b => { const i = BRANCH_ORDER.indexOf(b.name); return i < 0 ? BRANCH_ORDER.length : i; };
+  const rank = b => { const n = plainName(b.name), i = BRANCH_ORDER.findIndex(x => x.includes(n)); return i < 0 ? BRANCH_ORDER.length : i; };
   c.branches = c.branches.map((b, i) => [b, i]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map(x => x[0]);
   c.branchOrder = 'v1'; return c;
 }

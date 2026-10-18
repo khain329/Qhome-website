@@ -196,11 +196,20 @@
   /* ---------- nút lên đầu trang ---------- */
   $$('[data-top]').forEach(b => b.addEventListener('click', () => { if (lenis) lenis.scrollTo(0, { duration: 1.6 }); else scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); setTimeout(() => { const f = $('.brand'); if (f) f.focus({ preventScroll: true }); }, 900); }));
 
-  /* ---------- video TikTok: chỉ tải khi sắp cuộn tới để trang nhẹ ---------- */
-  const ttEl = $('.tiktok-embed');
-  if (ttEl && !ADMIN) {
-    const loadTT = () => { if (window.__qhTT) return; window.__qhTT = 1; const sc = document.createElement('script'); sc.src = 'https://www.tiktok.com/embed.js'; sc.async = true; sc.onload = () => setTimeout(() => ttEl.closest('.s-video-frame').classList.add('loaded'), 1500); document.body.appendChild(sc); };
-    if ('IntersectionObserver' in window) { const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); loadTT(); } }, { rootMargin: '800px 0px' }); io.observe(ttEl); } else loadTT();
+  /* ---------- video hậu trường (trang Câu chuyện): tự phát không tiếng khi cuộn tới ---------- */
+  const sVid = $('#sVid');
+  if (sVid) {
+    const frame = sVid.closest('.s-video-frame'), playBtn = $('#sVidPlay'), sndBtn = $('#sVidSound');
+    let userPaused = false;
+    const sync = () => frame.classList.toggle('is-playing', !sVid.paused);
+    const play = () => { const p = sVid.play(); if (p && p.catch) p.catch(() => sync()); };
+    sVid.addEventListener('play', sync); sVid.addEventListener('pause', sync);
+    playBtn.addEventListener('click', () => { userPaused = false; play(); });
+    sVid.addEventListener('click', () => { if (sVid.paused) { userPaused = false; play(); } else { userPaused = true; sVid.pause(); } });
+    sndBtn.addEventListener('click', () => { sVid.muted = !sVid.muted; sndBtn.setAttribute('aria-pressed', String(!sVid.muted)); sndBtn.setAttribute('aria-label', sVid.muted ? 'Bật tiếng' : 'Tắt tiếng'); if (sVid.paused) { userPaused = false; play(); } });
+    if (!reduce && !ADMIN && 'IntersectionObserver' in window) {
+      new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting && !userPaused) play(); else if (!en.isIntersecting && !sVid.paused) sVid.pause(); }), { threshold: .45 }).observe(sVid);
+    }
   }
 
   /* ---------- trang Hỏi đáp: mở/đóng mượt, tìm nhanh, đánh dấu nhóm đang xem ---------- */
