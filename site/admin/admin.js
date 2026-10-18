@@ -160,18 +160,27 @@ function fromPlain(text, def) {
 }
 
 /* ---------------- dữ liệu ---------------- */
+/* thứ tự chi nhánh mặc định, giống src/content.py; sau khi tự sắp xếp trong /admin thì giữ theo ý người quản trị */
+const BRANCH_ORDER = ['Lê Đại Hành', 'Sư Vạn Hạnh', 'Thích Quảng Đức', 'Ba Tháng Hai', 'Bàu Cát'];
+function applyOrder(c) {
+  if (c.branchOrder === 'manual') return c;
+  const rank = b => { const i = BRANCH_ORDER.indexOf(b.name); return i < 0 ? BRANCH_ORDER.length : i; };
+  c.branches = c.branches.map((b, i) => [b, i]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map(x => x[0]);
+  c.branchOrder = 'v1'; return c;
+}
 async function loadContent() {
   let c = null;
   if (DEMO) { try { c = JSON.parse(localStorage.getItem('qh-demo-content') || 'null'); } catch (e) {} }
   else { const r = await fetch('/api/content', { cache: 'no-store' }).catch(() => null); if (r && r.ok) c = await r.json(); }
   if (!c) { const r = await fetch('content.json', { cache: 'no-store' }); c = await r.json(); }
   c.pages = c.pages || {}; c.branches = c.branches || [];
+  applyOrder(c);
   S.published = JSON.stringify(c);
   S.content = c;
   try {
     const dr = JSON.parse(localStorage.getItem(draftKey()) || 'null');
     if (dr && dr.content && JSON.stringify(dr.content) !== S.published && (dr.base || null) === (c.updated || null)) {
-      S.content = dr.content; S.draftRestored = dr.at;
+      S.content = applyOrder(dr.content); S.draftRestored = dr.at;
     }
   } catch (e) {}
   S.pages = await fetch('pages.json', { cache: 'no-store' }).then(r => r.json());
@@ -336,7 +345,7 @@ function renderBranch(i) {
   const tiers = [...new Set([...b.rows.map(r => r[0]).filter(Boolean), ...TIERS])];
   $('#view').innerHTML = `
   <div class="be"><div class="be-in">
-    <div class="be-head"><span class="sw" style="--d:${esc(b.color)}"></span><div><p class="eyebrow">Chi nhánh ${String(i + 1).padStart(2, '0')}</p><h1>${esc(b.name)}</h1></div></div>
+    <div class="be-head"><span class="sw" style="--d:${esc(b.color)}"></span><div><p class="eyebrow">Chi nhánh ${String(i + 1).padStart(2, '0')}</p><h1>${esc(b.name)}</h1></div><div class="be-order"><span class="muted">Thứ tự</span><button class="icon" type="button" id="brUp" aria-label="Đưa chi nhánh lên trước" ${i === 0 ? 'disabled' : ''}><svg><use href="#i-up"/></svg></button><button class="icon" type="button" id="brDown" aria-label="Đưa chi nhánh xuống sau" ${i === S.content.branches.length - 1 ? 'disabled' : ''}><svg><use href="#i-down"/></svg></button></div></div>
     <div class="pe-note">Thay đổi ở đây hiện lên web sau khi bấm <b>Xuất bản</b> (khoảng 1–2 phút).</div>
 
     <section class="card"><h2>Thông tin</h2><p class="muted">Hiển thị ở menu, thẻ chi nhánh, trang chi nhánh và nút gọi/nhắn tin.</p>
@@ -387,6 +396,8 @@ function renderBranch(i) {
     <section class="card danger-zone"><div><h2 style="font-family:var(--display);font-weight:500;font-size:19px;margin:0">Xoá chi nhánh</h2><p class="muted" style="margin:4px 0 0;font-size:13px">Xoá khỏi menu, trang chủ và trang riêng sau khi xuất bản.</p></div><div id="delZone"><button class="btn danger" type="button" id="delBranch">Xoá chi nhánh này</button></div></section>
   </div></div>`;
   const rer = () => { markDirty(); renderSide(); renderBranch(i); };
+  const moveBr = d => { const j = i + d, L = S.content.branches; if (j < 0 || j >= L.length) return; [L[i], L[j]] = [L[j], L[i]]; S.content.branchOrder = 'manual'; markDirty(); go('branch:' + j); toast('Đã đổi thứ tự. Bấm Xuất bản để áp dụng lên web.'); };
+  $('#brUp').addEventListener('click', () => moveBr(-1)); $('#brDown').addEventListener('click', () => moveBr(1));
   imgBox($('#coverPv'), b.cover);
   $$('.rthumb').forEach(el => { const r = b.rooms[+el.dataset.rthumb]; const t = (r.thumb && r.thumb.src) ? r.thumb : (r.poster && r.poster.src ? { src: r.poster.src, x: 50, y: 12, z: 1 } : null); if (t) imgBox(el.querySelector('.pv-img'), t); });
   $$('[data-b]').forEach(inp => inp.addEventListener(inp.type === 'checkbox' || inp.type === 'color' ? 'change' : 'input', () => {

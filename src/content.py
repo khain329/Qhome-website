@@ -63,6 +63,14 @@ def default_branches():
     return out
 
 
+# thứ tự chi nhánh mặc định; khi người quản trị tự sắp xếp trong /admin thì giữ theo /admin (branchOrder = "manual")
+BRANCH_ORDER = ['Lê Đại Hành', 'Sư Vạn Hạnh', 'Thích Quảng Đức', 'Ba Tháng Hai', 'Bàu Cát']
+def apply_order(branches, flag):
+    if flag == 'manual': return branches
+    rank = lambda b: BRANCH_ORDER.index(b.get('name')) if b.get('name') in BRANCH_ORDER else len(BRANCH_ORDER)
+    return sorted(branches, key=rank)
+
+
 def load_content():
     """content.json do build plugin kéo về từ Netlify Blobs (nếu có)."""
     p = f'{ROOT}/src/content.json'
@@ -70,9 +78,10 @@ def load_content():
     if os.path.exists(p):
         try: data = json.load(open(p, encoding='utf-8'))
         except Exception as e: print('content.json lỗi, dùng mặc định:', e)
-    branches = data.get('branches') or default_branches()
+    flag = data.get('branchOrder')
+    branches = apply_order(data.get('branches') or default_branches(), flag)
     pages = data.get('pages') or {}
-    return {'version': 1, 'branches': branches, 'pages': pages, 'updated': data.get('updated')}
+    return {'version': 1, 'branches': branches, 'pages': pages, 'updated': data.get('updated'), 'branchOrder': flag if flag == 'manual' else 'v1'}
 
 
 def normalize(branches):
