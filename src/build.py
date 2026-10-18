@@ -45,13 +45,14 @@ def links(page):
     return dict(
         brand='#top' if home else HOME_URL,
         story='cau-chuyen.html',
-        rooms='phong.html', moments=f'{h}#khoanh-khac', amen=f'{h}#tien-nghi', contact=f'{h}#lien-he', branches=f'{h}#chi-nhanh',
+        rooms='phong.html', faq='faq.html', contact=f'{h}#lien-he', branches=f'{h}#chi-nhanh',
         cn=lambda i: f'{B[i]["slug"]}.html')
 
 def header(page, bi=None):
     L = links(page)
     cur = ' aria-current="page"' if page == 'story' else ''
     rcur = ' aria-current="page"' if page == 'rooms' else ''
+    fcur = ' aria-current="page"' if page == 'faq' else ''
     ac = lambda i: ' aria-current="page"' if bi == i else ''
     dd_items = ''.join(f'<li><a class="dd-item" href="{L["cn"](i)}"{ac(i)}><span class="n">{b["n"]}</span><span><b>{dot(b)}{esc(b["name"])}</b><small>{esc(b["dist"])}</small></span><svg class="go"><use href="#arrow"/></svg></a></li>' for i, b in enumerate(B))
     return f'''<header class="site" id="top">
@@ -63,8 +64,7 @@ def header(page, bi=None):
     <nav class="nav-links" aria-label="Điều hướng chính">
       <a href="{L["story"]}"{cur}>Câu chuyện</a>
       <a href="{L["rooms"]}"{rcur}>Phòng</a>
-      <a href="{L["moments"]}">Khoảnh khắc</a>
-      <a href="{L["amen"]}">Tiện nghi</a>
+      <a href="{L["faq"]}"{fcur}>Hỏi đáp</a>
       <div class="has-dd" id="dd">
         <button class="dd-toggle{' is-current' if bi is not None else ''}" id="ddToggle" type="button" aria-expanded="false" aria-controls="ddPanel">Chi nhánh <svg><use href="#chev"/></svg></button>
         <div class="dd" id="ddPanel">
@@ -83,13 +83,13 @@ def mobile_menu(page, bi=None):
     L = links(page)
     cur = ' aria-current="page"' if page == 'story' else ''
     rcur = ' aria-current="page"' if page == 'rooms' else ''
+    fcur = ' aria-current="page"' if page == 'faq' else ''
     items = ''.join(f'<a href="{L["cn"](i)}"{" aria-current=\"page\"" if bi == i else ""}><span>{b["n"]}</span>{b["name"]}<small>{b["dist"]}</small></a>' for i, b in enumerate(B))
     return f'''<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
   <nav aria-label="Menu di động">
     <a href="{L["story"]}"{cur}>Câu chuyện</a>
     <a href="{L["rooms"]}"{rcur}>Phòng</a>
-    <a href="{L["moments"]}">Khoảnh khắc</a>
-    <a href="{L["amen"]}">Tiện nghi</a>
+    <a href="{L["faq"]}"{fcur}>Hỏi đáp</a>
     <button class="mm-acc" id="mmAcc" type="button" aria-expanded="false" aria-controls="mmSub">Chi nhánh <svg><use href="#chev"/></svg></button>
     <div class="mm-sub" id="mmSub" hidden>{items}</div>
     <a href="{L["contact"]}"><em>Liên hệ</em></a>
@@ -109,6 +109,7 @@ def footer(page):
         <a class="brand" href="{L["brand"]}"><span class="brand-mark"><svg><use href="#qmark"/></svg></span><span class="brand-name">Q Home<small>Một trải nghiệm</small></span></a>
         <p style="margin-top:18px;max-width:36ch">Staycation ấm cúng với 5 chi nhánh. Mở cửa 24/7.</p>
         <p style="margin-top:14px"><a href="{L["story"]}">Câu chuyện Qhome</a></p>
+        <p style="margin-top:6px"><a href="{L["faq"]}">Hỏi đáp &amp; nội quy lưu trú</a></p>
       </div>
       <div>
         <h4>Chi nhánh</h4>
@@ -197,6 +198,10 @@ def home_main():
     anchor = '<ul class="pnotes" id="brNotes">'
     i = m.index(anchor); j = m.index('</div>', m.index('</ul>', i)) + len('</div>')
     m = m[:j] + rooms_html + m[j:]
+    # bỏ mục Tiện nghi
+    m = re.sub(r'\s*<!-- AMENITIES -->\s*<section class="section amen" id="tien-nghi">.*?</section>', '', m, count=1, flags=re.S)
+    # bỏ mục Khoảnh khắc (gallery)
+    m = re.sub(r'\s*<!-- GALLERY -->\s*<section class="section" id="khoanh-khac">.*?</section>', '', m, count=1, flags=re.S)
     # nút dẫn sang trang Phòng từ mục Hạng phòng
     m = re.sub(r'(<section class="rooms on-dark" id="phong">.*?<div class="wrap rooms-head">.*?)<p data-reveal>(.*?)</p>', lambda mo: mo.group(1) + f'<div class="rooms-head-side" data-reveal><p>{mo.group(2)}</p><a class="btn btn-line magnetic rooms-all" href="phong.html">Xem phòng từng chi nhánh {ARROW}</a></div>', m, count=1, flags=re.S)
     # nút dẫn sang trang Câu chuyện
@@ -589,25 +594,133 @@ def page_rooms():
             f'{rooms_main()}\n\n{footer("rooms")}\n{P["lightbox"]}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
     return head('Phòng · Qhome Staycation', 'Xem phòng tại 5 chi nhánh Q Home: Bàu Cát, Sư Vạn Hạnh, Ba Tháng Hai, Lê Đại Hành, Thích Quảng Đức. Mỗi phòng một bảng màu riêng.', 'rooms', None) + body
 
+
+# ---------------- FAQ (theo nội quy lưu trú) ----------------
+FAQ = [
+  ('nhan-tra-phong', 'Nhận & trả phòng', [
+    ('Giờ nhận phòng và trả phòng là khi nào?',
+     '<p>Thời gian lưu trú được tính theo đúng khung giờ bạn đã đặt. Ví dụ bạn đặt từ 12:00 đến 15:00 thì nhận phòng lúc 12:00 và trả phòng lúc 15:00.</p>'),
+    ('Mình muốn nhận phòng sớm hoặc trả phòng muộn hơn được không?',
+     '<p>Được, nếu phòng còn trống. Bạn nhắn chi nhánh trước để bọn mình sắp xếp. Phần thời gian thêm sẽ tính phụ thu theo giá niêm yết.</p>'),
+    ('Trả phòng sớm hơn giờ đã đặt thì có được giảm giá hay hoàn tiền không?',
+     '<p>Không. Khi bạn trả phòng sớm hơn khung giờ đã đặt, Qhome không điều chỉnh giá phòng và không hoàn tiền phần thời gian còn lại.</p>'),
+    ('Nếu mình đến muộn hơn giờ nhận phòng thì sao?',
+     '<p>Bạn nhắn hoặc gọi báo chi nhánh trước là được, bọn mình vẫn giữ phòng cho bạn. Trường hợp đã quá giờ nhận phòng mà không có thông báo và không liên lạc được, Qhome có quyền huỷ đặt phòng, không hoàn cọc và nhường phòng cho lượt đặt khác.</p>'),
+    ('Khi nhận phòng cần mang theo giấy tờ gì?',
+     '<p>Bạn làm thủ tục tại quầy lễ tân và xuất trình một giấy tờ tuỳ thân: CMND, CCCD hoặc hộ chiếu.</p>'),
+    ('Khi trả phòng có kiểm tra phòng không?',
+     '<p>Có. Sau khi bạn trả phòng, nhân viên sẽ kiểm tra tình trạng phòng. Nếu có hư hỏng hoặc mất mát tài sản, Qhome sẽ báo bạn và tính phí bồi thường vào hoá đơn cuối cùng.</p>'),
+  ]),
+  ('so-khach-phu-thu', 'Số khách & phụ thu', [
+    ('Một phòng ở được mấy người?',
+     '<p>Mỗi phòng tiêu chuẩn cho 2 khách. Nếu đi đông hơn, bạn báo lễ tân trước, phụ thu <b>100.000đ cho mỗi người thêm</b>.</p>'),
+    ('Bạn bè ghé chơi có tính phí không?',
+     '<p>Bạn bè hoặc người thân ghé thăm từ 2 tiếng trở lên sẽ phụ thu <b>100.000đ</b>. Ghé dưới 2 tiếng thì không tính phí.</p>'),
+    ('Trẻ em có tính phí không?',
+     '<p>Trẻ em dưới 6 tuổi được miễn phí khi ở chung phòng với người lớn.</p>'),
+    ('Qhome có giường phụ không?',
+     '<p>Có. Bạn báo trước khi đến để bọn mình chuẩn bị. Phụ thu <b>100.000đ cho mỗi giường phụ</b>.</p>'),
+  ]),
+  ('noi-quy', 'Nội quy trong phòng', [
+    ('Có được hút thuốc trong phòng không?',
+     '<p>Không. Qhome không cho phép hút thuốc, sử dụng chất kích thích hoặc các chất cấm trong phòng.</p>'),
+    ('Mình muốn tổ chức sinh nhật hoặc tiệc nhỏ trong phòng được không?',
+     '<p>Bạn cần nhắn chi nhánh để được Qhome chấp thuận trước. Phòng không dùng để tổ chức tiệc tùng hoặc sự kiện khi chưa được đồng ý.</p>'),
+    ('Có giờ yên tĩnh không?',
+     '<p>Có. Từ 22:00 đến 08:00, bạn giữ yên lặng giúp bọn mình để mọi phòng đều được nghỉ ngơi trọn vẹn.</p>'),
+    ('Mang thú cưng theo được không?',
+     '<p>Rất tiếc là không. Qhome hiện chưa nhận thú cưng.</p>'),
+    ('Có được mang đồ ăn, thức uống từ bên ngoài vào không?',
+     '<p>Được. Bạn cứ mang theo món mình thích, chỉ cần giữ phòng sạch sẽ giúp bọn mình.</p>'),
+    ('Mình cần lưu ý gì để giữ phòng?',
+     '<p>Bạn giữ vệ sinh chung, bảo quản đồ đạc trong phòng và tránh làm hư hỏng hoặc thất lạc. Mọi hư hỏng, mất mát sẽ được tính phí bồi thường khi trả phòng.</p>'),
+  ]),
+  ('huy-phong', 'Huỷ & dời lịch', [
+    ('Huỷ phòng có mất phí không?',
+     '<p>Tuỳ thời điểm bạn báo huỷ so với giờ nhận phòng:</p><ul><li><b>Từ 72 tiếng trở lên:</b> huỷ miễn phí, và được hỗ trợ dời lịch trong vòng 2 tuần tính từ ngày huỷ.</li><li><b>Trong vòng 48 tiếng:</b> không hoàn cọc, chỉ hỗ trợ dời lịch trong vòng 2 tuần tính từ thời điểm đặt phòng.</li><li><b>Trong vòng 12 tiếng:</b> không hoàn cọc và không dời lịch.</li></ul>'),
+    ('Mình muốn dời lịch thay vì huỷ thì sao?',
+     '<p>Bạn nhắn chi nhánh càng sớm càng tốt. Nếu báo trước giờ nhận phòng hơn 12 tiếng, bạn được dời lịch trong vòng 2 tuần. Trong vòng 12 tiếng trước giờ nhận phòng thì Qhome không hỗ trợ dời lịch.</p>'),
+  ]),
+]
+FEES = [('Thêm người', '100.000đ', 'mỗi người, quá 2 khách'), ('Khách ghé thăm', '100.000đ', 'từ 2 tiếng trở lên'), ('Giường phụ', '100.000đ', 'mỗi giường'), ('Trẻ dưới 6 tuổi', 'Miễn phí', 'ở chung với người lớn')]
+CANCEL = [('Từ 72 tiếng trở lên', 'trước giờ nhận phòng', 'Huỷ miễn phí', 'Dời lịch trong 2 tuần kể từ ngày huỷ', 'ok'),
+          ('Trong vòng 48 tiếng', 'trước giờ nhận phòng', 'Không hoàn cọc', 'Dời lịch trong 2 tuần kể từ lúc đặt', 'mid'),
+          ('Trong vòng 12 tiếng', 'trước giờ nhận phòng', 'Không hoàn cọc', 'Không dời lịch', 'no')]
+
+def faq_main():
+    nav = ''.join(f'<li><a href="#{cid}" data-faq-nav><span class="n">{i+1:02d}</span>{esc(name)}<small>{len(items)}</small></a></li>' for i, (cid, name, items) in enumerate(FAQ))
+    fees = ''.join(f'<li><span>{a}</span><b>{b}</b><small>{c}</small></li>' for a, b, c in FEES)
+    cats = []
+    for i, (cid, name, items) in enumerate(FAQ):
+        extra = ''
+        if cid == 'huy-phong':
+            extra = '<ol class="fq-timeline" aria-label="Chính sách huỷ phòng">' + ''.join(
+                f'<li class="t-{k}"><span class="when"><b>{w}</b><small>{w2}</small></span><span class="what"><b>{a}</b><small>{b}</small></span></li>' for w, w2, a, b, k in CANCEL) + '</ol>'
+        qs = ''.join(f'<details class="fq-item"><summary><span class="q">{esc(q)}</span><i class="pm" aria-hidden="true"></i></summary><div class="fq-a">{a}</div></details>' for q, a in items)
+        cats.append(f'<section class="fq-cat" id="{cid}" aria-labelledby="{cid}-t"><header class="fq-cat-h"><span class="n">{i+1:02d}</span><h2 id="{cid}-t">{esc(name)}</h2></header>{extra}<div class="fq-items">{qs}</div></section>')
+    return f"""<main class="fq">
+  <section class="fq-hero">
+    <div class="wrap fq-hero-in">
+      <nav class="crumbs" aria-label="Vị trí trang" data-load><a href="{HOME_URL}">Trang chủ</a><span aria-hidden="true">/</span><span aria-current="page">Hỏi đáp</span></nav>
+      <p class="eyebrow" data-load>Hỏi đáp · Nội quy lưu trú</p>
+      <h1 class="display"><span class="line"><span>Hỏi gì,</span></span><span class="line"><span><span class="ital">Qhome cũng trả lời.</span></span></span></h1>
+      <p class="lede" data-load>Những điều bạn hay thắc mắc trước khi về nhà: giờ nhận phòng, phụ thu, nội quy và chính sách huỷ. Tất cả gói gọn từ nội quy lưu trú của Qhome.</p>
+      <label class="fq-search" data-load><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><input type="search" id="fqSearch" placeholder="Tìm nhanh, ví dụ: thú cưng, huỷ phòng, giường phụ…" aria-label="Tìm câu hỏi"></label>
+    </div>
+  </section>
+
+  <section class="fq-body">
+    <div class="wrap fq-grid">
+      <aside class="fq-side">
+        <nav class="fq-nav" aria-label="Nhóm câu hỏi"><ul>{nav}</ul></nav>
+        <div class="fq-fees" data-reveal><p class="eyebrow">Phụ thu nhanh</p><ul>{fees}</ul></div>
+      </aside>
+      <div class="fq-list">
+        {''.join(cats)}
+        <p class="fq-empty" id="fqEmpty" hidden>Chưa có câu hỏi nào khớp. Bạn thử từ khoá khác, hoặc nhắn thẳng chi nhánh để được trả lời ngay.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section fq-outro">
+    <div class="wrap fq-outro-in" data-reveal>
+      <p class="display">Chưa thấy câu bạn cần? <em>Nhắn bọn mình nhé.</em></p>
+      <p class="lede">Mỗi chi nhánh trực Messenger, Zalo và điện thoại 24/7. Nội dung trên theo nội quy lưu trú hiện hành, chi nhánh sẽ xác nhận lại khi bạn đặt phòng.</p>
+      <a class="btn btn-solid magnetic" href="{HOME_URL}#lien-he">Liên hệ chi nhánh {ARROW}</a>
+    </div>
+  </section>
+</main>"""
+
+def faq_ld():
+    import re as _re
+    ents = [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': _re.sub(r'<[^>]+>', ' ', a).replace('  ', ' ').strip()}} for _, _, items in FAQ for q, a in items]
+    return '<script type="application/ld+json">' + json.dumps({'@context': 'https://schema.org', '@type': 'FAQPage', 'mainEntity': ents}, ensure_ascii=False).replace('</', '<\\/') + '</script>\n'
+
+def page_faq():
+    body = (f'<body data-page="faq">\n{P["defs"]}\n\n{P["badge"]}\n\n{header("faq")}\n{mobile_menu("faq")}\n'
+            f'{faq_main()}\n\n{footer("faq")}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{faq_ld()}{SCRIPTS}</body>\n</html>\n')
+    return head('Hỏi đáp & nội quy · Qhome Staycation', 'Giờ nhận phòng, phụ thu, nội quy và chính sách huỷ phòng tại Q Home Staycation. Câu trả lời nhanh cho những thắc mắc thường gặp.', 'faq', -1) + body
+
 # ---------------- write ----------------
 os.makedirs(f'{ROOT}/site/assets/img', exist_ok=True)
-css = open(f'{ROOT}/src/base.css', encoding='utf-8').read() + open(f'{ROOT}/src/story.css', encoding='utf-8').read() + open(f'{ROOT}/src/rooms.css', encoding='utf-8').read() + open(f'{ROOT}/src/branch.css', encoding='utf-8').read() + open(f'{ROOT}/src/roomspage.css', encoding='utf-8').read() + open(f'{ROOT}/src/admin_bridge.css', encoding='utf-8').read()
+css = open(f'{ROOT}/src/base.css', encoding='utf-8').read() + open(f'{ROOT}/src/story.css', encoding='utf-8').read() + open(f'{ROOT}/src/rooms.css', encoding='utf-8').read() + open(f'{ROOT}/src/branch.css', encoding='utf-8').read() + open(f'{ROOT}/src/roomspage.css', encoding='utf-8').read() + open(f'{ROOT}/src/faq.css', encoding='utf-8').read() + open(f'{ROOT}/src/admin_bridge.css', encoding='utf-8').read()
 open(f'{ROOT}/site/assets/style.css', 'w', encoding='utf-8').write(css)
 js = open(f'{ROOT}/src/main.js', encoding='utf-8').read().replace('/*__BRANCHES__*/[]', json.dumps(CT.js_data(B), ensure_ascii=False))
 open(f'{ROOT}/site/assets/main.js', 'w', encoding='utf-8').write(js)
-home = page_home(); story = page_story(); rooms = page_rooms()
+home = page_home(); story = page_story(); rooms = page_rooms(); faq = page_faq()
 open(f'{ROOT}/site/index.html', 'w', encoding='utf-8').write(home)
 open(f'{ROOT}/site/cau-chuyen.html', 'w', encoding='utf-8').write(story)
 open(f'{ROOT}/site/phong.html', 'w', encoding='utf-8').write(rooms)
+open(f'{ROOT}/site/faq.html', 'w', encoding='utf-8').write(faq)
 branch_pages = [(b['slug'] + '.html', page_branch(i), None) for i, b in enumerate(B)]
 # nội dung hiệu lực cho trang quản trị + danh sách trang
 os.makedirs(f'{ROOT}/site/admin', exist_ok=True)
 json.dump(C, open(f'{ROOT}/site/admin/content.json', 'w', encoding='utf-8'), ensure_ascii=False)
-json.dump([{'key': 'home', 'file': 'index.html', 'name': 'Trang chủ'}, {'key': 'story', 'file': 'cau-chuyen.html', 'name': 'Câu chuyện'}, {'key': 'rooms', 'file': 'phong.html', 'name': 'Phòng'}] +
+json.dump([{'key': 'home', 'file': 'index.html', 'name': 'Trang chủ'}, {'key': 'story', 'file': 'cau-chuyen.html', 'name': 'Câu chuyện'}, {'key': 'rooms', 'file': 'phong.html', 'name': 'Phòng'}, {'key': 'faq', 'file': 'faq.html', 'name': 'Hỏi đáp'}] +
           [{'key': b['slug'], 'file': b['slug'] + '.html', 'name': b['name'], 'branch': i} for i, b in enumerate(B)],
           open(f'{ROOT}/site/admin/pages.json', 'w', encoding='utf-8'), ensure_ascii=False)
 # xoá trang chi nhánh cũ không còn dùng
-keep = {'index.html', 'cau-chuyen.html', 'phong.html'} | {n for n, _, _ in branch_pages}
+keep = {'index.html', 'cau-chuyen.html', 'phong.html', 'faq.html'} | {n for n, _, _ in branch_pages}
 for f in os.listdir(f'{ROOT}/site'):
     if f.endswith('.html') and f not in keep: os.remove(f'{ROOT}/site/{f}')
 for name, html, _ in branch_pages: open(f'{ROOT}/site/{name}', 'w', encoding='utf-8').write(html)
@@ -636,6 +749,6 @@ def inline(html, keep):
     assert 'assets/style.css' not in html and 'assets/main.js' not in html
     return html
 os.makedirs(f'{ROOT}/export', exist_ok=True)
-for name, html, keep in ([] if IS_NETLIFY else [('index.html', home, None), ('cau-chuyen.html', story, None), ('phong.html', rooms, None)] + branch_pages):
+for name, html, keep in ([] if IS_NETLIFY else [('index.html', home, None), ('cau-chuyen.html', story, None), ('phong.html', rooms, None), ('faq.html', faq, None)] + branch_pages):
     open(f'{ROOT}/export/{name}', 'w', encoding='utf-8').write(inline(html, keep))
 print('standalone ok')
