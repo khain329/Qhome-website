@@ -419,9 +419,12 @@
     });
     document.addEventListener('click', e => {
       const ph = e.target.closest('[data-ek]'), tx = e.target.closest('[data-tk]');
-      if (ph || tx || e.target.closest('a, button')) { e.preventDefault(); e.stopPropagation(); }
+      if (!ph && !tx && e.target.closest('.br-tab, .rc-arrow, .rc-dot')) return; /* cho phép chuyển chi nhánh trong bản xem trước */
+      const bi = !ph && (e.target.closest('.ph[data-v^="cv-"], .ph[data-v^="rt-"], .ph[data-v^="rp-"], .br-media, .rc-slide, .rtile, .bp-hero-arch') || null);
+      if (ph || tx || bi || e.target.closest('a, button')) { e.preventDefault(); e.stopPropagation(); }
       if (ph) post({ type: 'select', kind: 'img', key: ph.dataset.ek });
       else if (tx) post({ type: 'select', kind: 'txt', key: tx.dataset.tk });
+      else if (bi) { const el = bi.matches('.ph') ? bi : bi.querySelector('.ph[data-v]'); const m = el && /^(cv|rt|rp)-(\d+)(?:-(\d+))?$/.exec(el.dataset.v || ''); if (m) post({ type: 'branchimg', what: m[1] === 'cv' ? 'cover' : 'room', branch: +m[2], room: m[3] != null ? +m[3] : null }); }
     }, true);
     addEventListener('load', () => setTimeout(sendSlots, 300));
     if (document.readyState === 'complete') setTimeout(sendSlots, 300);

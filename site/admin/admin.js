@@ -233,6 +233,7 @@ function renderPage(key) {
     </div>
   </div>`;
   if (isBranch) $('#peList').insertAdjacentHTML('beforebegin', `<div class="pe-note" style="margin:12px 14px 0">Ảnh đại diện, bảng giá, danh sách phòng và thông tin liên hệ của chi nhánh sửa ở mục <button class="link" data-go="branch:${p.branch}">Chi nhánh ${esc(p.name)}</button>.</div>`);
+  else $('#peList').insertAdjacentHTML('beforebegin', `<div class="pe-note" style="margin:12px 14px 0">Ảnh đại diện chi nhánh và ảnh phòng (viền xanh khi rê chuột trên bản xem trước) sửa ở mục <b>Chi nhánh, giá &amp; phòng</b>. Bấm vào ảnh đó trên bản xem trước để mở thẳng chỗ sửa.</div>`);
   frame = $('#prevFrame'); frameReady = false;
   sizeFrame();
   frame.src = SITE + p.file + '?admin=1';
@@ -257,6 +258,16 @@ addEventListener('message', ev => {
     Object.keys(pd.img).forEach(k => post({ type: 'apply', kind: 'img', key: k, entry: pd.img[k] }));
     Object.keys(pd.txt).forEach(k => post({ type: 'apply', kind: 'txt', key: k, entry: pd.txt[k] }));
     renderSlots(key);
+  }
+  if (d.type === 'branchimg') {
+    const b = S.content.branches[d.branch]; if (!b) return;
+    go('branch:' + d.branch);
+    if (d.what === 'cover') { toast('Đây là ảnh đại diện của chi nhánh ' + b.name + '. Sửa ở đây, ảnh đổi trên mọi trang.'); setTimeout(() => $('#coverCrop') && $('#coverCrop').click(), 250); }
+    else {
+      const r = (b.rooms || [])[d.room]; toast(r ? 'Ảnh phòng ' + (r.no || '') + ' · ' + b.name + '. Bấm ảnh nhỏ để căn khung, nút Đổi để thay ảnh chi tiết.' : 'Ảnh phòng của chi nhánh ' + b.name);
+      setTimeout(() => { const t = $(`[data-rthumb="${d.room}"]`); if (t) { t.closest('tr').scrollIntoView({ block: 'center', behavior: 'smooth' }); t.closest('tr').classList.add('hl'); setTimeout(() => t.closest('tr') && t.closest('tr').classList.remove('hl'), 2400); } }, 250);
+    }
+    return;
   }
   if (d.type === 'select') {
     const el = $(`.slot[data-k="${d.kind}:${d.key}"]`);

@@ -218,3 +218,5 @@ table.ed td.num input{width:96px;text-align:right}
   .grid2{grid-template-columns:1fr}
   .cover-row{grid-template-columns:1fr}
 }
+
+table.ed tr.hl td{background:color-mix(in srgb,var(--accent) 16%,transparent);transition:background .4s}

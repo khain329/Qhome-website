@@ -944,3 +944,5 @@ html.admin-preview [data-tk]:hover{box-shadow:0 0 0 2px rgba(229,154,75,.85);bor
 html.admin-preview .arch:hover,html.admin-preview .g-item:hover,html.admin-preview .room-media:hover,html.admin-preview .hcard-media:hover,html.admin-preview .door-frame:hover{outline:3px dashed rgba(229,154,75,.95);outline-offset:-6px}
 html.admin-preview .qh-focus{outline:3px solid #E59A4B!important;outline-offset:-4px;box-shadow:0 0 0 6px rgba(229,154,75,.25)!important;transition:outline-color .3s}
 html.admin-preview .hero-arch .ph{animation:none}
+html.admin-preview .ph[data-v^="cv-"],html.admin-preview .rtile,html.admin-preview .rc-slide{cursor:pointer}
+html.admin-preview .br-media:hover,html.admin-preview .bp-hero-arch:hover,html.admin-preview .rtile:hover,html.admin-preview .rc-slide.is-active:hover{outline:3px dashed rgba(94,150,200,.95);outline-offset:-6px}
