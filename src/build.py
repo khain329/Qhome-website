@@ -161,7 +161,7 @@ def tier_cards():
         out.append(f'''
           <article class="room">
             <div class="room-media"><div class="ph" data-v="{v}" role="img" aria-label="{cap}"></div><div class="room-info"><span class="room-no">HẠNG 0{k+1}</span><h3>{t}</h3><p>{desc[t]}</p><div class="room-meta">{meta}</div></div></div>
-            <div class="tags" aria-label="Có tại các chi nhánh">{chips}</div>
+            <div class="tags-wrap"><p class="tags-t">Có tại</p><div class="tags" aria-label="Có tại các chi nhánh">{chips}</div></div>
             <div class="room-foot"><span>Từ <b>{money(low)}đ</b> · combo 2H</span><a href="#chi-nhanh">Bảng giá {ARROW.replace('<svg>', '<svg width="14" height="14">')}</a></div>
           </article>''')
     return ''.join(out)
