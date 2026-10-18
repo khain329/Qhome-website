@@ -31,9 +31,12 @@ const draftKey = () => 'qh-admin-draft' + (DEMO ? '-demo' : '');
 function imgBox(el, e, fallback) {
   const src = (e && e.src) || fallback || '';
   const x = e && e.x != null ? e.x : 50, y = e && e.y != null ? e.y : 50, z = (e && +e.z) || 1;
+  const full = !!(e && e.fit === 'full');
   el.style.backgroundImage = src ? `url("${absUrl(src)}")` : 'none';
-  el.style.backgroundPosition = `${x}% ${y}%`;
-  el.style.transform = z !== 1 ? `scale(${z})` : '';
+  el.style.backgroundPosition = full ? 'center' : `${x}% ${y}%`;
+  el.style.backgroundSize = full ? 'contain' : '';
+  el.style.backgroundColor = full ? '#EDE3D4' : '';
+  el.style.transform = !full && z !== 1 ? `scale(${z})` : '';
   el.style.transformOrigin = `${x}% ${y}%`;
 }
 
@@ -67,11 +70,12 @@ async function uploadImage(file) {
 }
 
 /* ---------------- khung cắt ảnh ---------------- */
-const CROP = { src: '', x: 50, y: 50, z: 1, ar: 1.33, arM: null, iw: 0, ih: 0, onApply: null, upAr: null };
+const CROP = { fit: false, src: '', x: 50, y: 50, z: 1, ar: 1.33, arM: null, iw: 0, ih: 0, onApply: null, upAr: null };
 function cropGeom() {
   const { iw, ih, ar, z } = CROP; if (!iw) return null;
   let fw = 1, fh = 1;
   if (iw / ih > ar) fw = (ih * ar) / iw; else fh = (iw / ar) / ih;
+  if (CROP.fit) return { fw: 1, fh: 1, left: 0, top: 0 };
   fw /= z; fh /= z;
   return { fw, fh, left: CROP.x / 100 * (1 - fw), top: CROP.y / 100 * (1 - fh) };
 }
@@ -81,13 +85,15 @@ function cropRender() {
   fr.style.left = (g.left * img.clientWidth) + 'px'; fr.style.top = (g.top * img.clientHeight) + 'px';
   fr.style.width = (g.fw * img.clientWidth) + 'px'; fr.style.height = (g.fh * img.clientHeight) + 'px';
   $('#cropZv').textContent = Math.round(CROP.z * 100) + '%';
-  const e = { src: CROP.src, x: CROP.x, y: CROP.y, z: CROP.z };
+  const e = { src: CROP.src, x: CROP.x, y: CROP.y, z: CROP.z, fit: CROP.fit ? 'full' : undefined };
   imgBox($('#pvDesk .pv-img'), e); imgBox($('#pvPhone .pv-img'), e);
   const tight = g.fw > .995 && g.fh > .995;
-  $('#cropHint').textContent = tight ? 'Ảnh đang vừa khít khung. Kéo thanh Thu phóng để có khoảng di chuyển.' : 'Kéo khung để chọn phần ảnh hiển thị. Kéo thanh bên dưới để phóng to.';
+  $('#cropZoom').disabled = CROP.fit; $('#cropCenter').disabled = CROP.fit; $('#cropFrame').classList.toggle('locked', CROP.fit);
+  $('#cropHint').textContent = CROP.fit ? 'Đang hiện trọn ảnh, không cắt. Phần trống quanh ảnh sẽ có màu kem nhạt.' : tight ? 'Ảnh đang vừa khít khung. Kéo thanh Thu phóng để có khoảng di chuyển.' : 'Kéo khung để chọn phần ảnh hiển thị. Kéo thanh bên dưới để phóng to.';
 }
 function openCrop({ title, entry, fallback, ar, arM, onApply }) {
-  Object.assign(CROP, { src: (entry && entry.src) || fallback || '', x: entry?.x ?? 50, y: entry?.y ?? 50, z: +(entry?.z) || 1, ar: ar || 1.33, arM: arM || null, onApply, upAr: null, iw: 0, ih: 0 });
+  Object.assign(CROP, { src: (entry && entry.src) || fallback || '', x: entry?.x ?? 50, y: entry?.y ?? 50, z: +(entry?.z) || 1, ar: ar || 1.33, arM: arM || null, onApply, upAr: null, iw: 0, ih: 0, fit: entry?.fit === 'full' });
+  $('#cropFit').checked = CROP.fit;
   $('#cropT').textContent = title || 'Ảnh';
   $('#pvDesk').style.aspectRatio = String(CROP.ar);
   $('#pvPhoneWrap').hidden = !CROP.arM; if (CROP.arM) $('#pvPhone').style.aspectRatio = String(CROP.arM);
@@ -103,7 +109,7 @@ function loadCropImage() {
 function initCrop() {
   const fr = $('#cropFrame'), img = $('#cropImg');
   let d = null;
-  fr.addEventListener('pointerdown', e => { const g = cropGeom(); if (!g) return; d = { x: e.clientX, y: e.clientY, l: g.left, t: g.top, g }; fr.setPointerCapture(e.pointerId); e.preventDefault(); });
+  fr.addEventListener('pointerdown', e => { if (CROP.fit) return; const g = cropGeom(); if (!g) return; d = { x: e.clientX, y: e.clientY, l: g.left, t: g.top, g }; fr.setPointerCapture(e.pointerId); e.preventDefault(); });
   fr.addEventListener('pointermove', e => {
     if (!d) return; const { g } = d;
     const l = Math.min(1 - g.fw, Math.max(0, d.l + (e.clientX - d.x) / img.clientWidth));
@@ -115,6 +121,7 @@ function initCrop() {
   const end = () => { d = null; };
   fr.addEventListener('pointerup', end); fr.addEventListener('pointercancel', end);
   $('#cropStage').addEventListener('wheel', e => { e.preventDefault(); CROP.z = Math.min(3, Math.max(1, CROP.z - e.deltaY * .0015)); $('#cropZoom').value = CROP.z; cropRender(); }, { passive: false });
+  $('#cropFit').addEventListener('change', e => { CROP.fit = e.target.checked; cropRender(); });
   $('#cropZoom').addEventListener('input', e => { CROP.z = +e.target.value; cropRender(); });
   $('#cropCenter').addEventListener('click', () => { CROP.x = 50; CROP.y = 50; cropRender(); });
   $('#cropFile').addEventListener('change', async e => {
@@ -122,7 +129,7 @@ function initCrop() {
     try { const up = await uploadImage(f); CROP.src = up.src; CROP.upAr = up.ar; CROP.x = 50; CROP.y = 50; CROP.z = 1; $('#cropZoom').value = 1; loadCropImage(); toast('Đã tải ảnh mới. Căn khung rồi bấm Áp dụng.'); }
     catch (err) { toast(err.message, true); }
   });
-  $('#cropApply').addEventListener('click', () => { const e = { src: CROP.src, x: CROP.x, y: CROP.y, z: +CROP.z.toFixed(2) }; $('#crop').hidden = true; CROP.onApply && CROP.onApply(e, CROP.upAr); });
+  $('#cropApply').addEventListener('click', () => { const e = { src: CROP.src, x: CROP.x, y: CROP.y, z: +CROP.z.toFixed(2) }; if (CROP.fit) e.fit = 'full'; $('#crop').hidden = true; CROP.onApply && CROP.onApply(e, CROP.upAr); });
   $$('#crop [data-close]').forEach(b => b.addEventListener('click', () => { $('#crop').hidden = true; }));
   addEventListener('resize', () => { if (!$('#crop').hidden) cropRender(); });
   addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#crop').hidden) $('#crop').hidden = true; });

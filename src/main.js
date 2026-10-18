@@ -34,8 +34,9 @@
   })();
   function imgStyle(el, e){
     if (!el) return;
-    ['--img', '--pos', 'scale', 'transform-origin'].forEach(p => el.style.removeProperty(p));
+    ['--img', '--pos', 'scale', 'transform-origin', 'background-size', 'background-color'].forEach(p => el.style.removeProperty(p));
     if (!e) return;
+    if (e.fit === 'full') { if (e.src) el.style.setProperty('--img', 'url("' + e.src + '")'); el.style.setProperty('--pos', 'center'); el.style.setProperty('background-size', 'contain'); el.style.setProperty('background-color', '#EDE3D4'); return; }
     const x = e.x != null ? e.x : 50, y = e.y != null ? e.y : 50, z = +e.z || 1;
     if (e.src) el.style.setProperty('--img', 'url("' + e.src + '")');
     el.style.setProperty('--pos', x + '% ' + y + '%');
@@ -191,6 +192,46 @@
   if (brSec && BR.length) selectBranch(0, false);
   /* trang chi nhánh riêng */
   if (page === 'branch') { brCur = +(document.body.dataset.branch || 0); if ($('#brRooms')) renderRooms(BR[brCur], false); }
+
+  /* ---------- trang Hỏi đáp: mở/đóng mượt, tìm nhanh, đánh dấu nhóm đang xem ---------- */
+  if (page === 'faq') {
+    const items = $$('.fq-item');
+    if (ADMIN) items.forEach(d => d.open = true);
+    items.forEach(d => {
+      const sum = $('summary', d);
+      sum.addEventListener('click', e => {
+        if (reduce || typeof d.animate !== 'function') return;
+        e.preventDefault();
+        const start = d.offsetHeight;
+        if (d.open) {
+          const end = sum.offsetHeight; d.classList.add('closing');
+          const a = d.animate({ height: [start + 'px', end + 'px'] }, { duration: 380, easing: 'cubic-bezier(.22,.7,.2,1)' }); d.style.overflow = 'hidden';
+          a.onfinish = () => { d.open = false; d.style.overflow = ''; d.classList.remove('closing'); };
+        } else {
+          d.open = true; const end = d.offsetHeight; d.style.overflow = 'hidden';
+          const a = d.animate({ height: [start + 'px', end + 'px'] }, { duration: 460, easing: 'cubic-bezier(.22,.7,.2,1)' });
+          a.onfinish = () => { d.style.overflow = ''; };
+          const ans = $('.fq-a', d); if (ans) ans.animate({ opacity: [0, 1], transform: ['translateY(-6px)', 'none'] }, { duration: 420, easing: 'ease-out' });
+        }
+      });
+    });
+    /* tìm nhanh, không phân biệt dấu */
+    const norm = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd');
+    const idx = items.map(d => norm(d.textContent));
+    const q = $('#fqSearch'), empty = $('#fqEmpty');
+    if (q) q.addEventListener('input', () => {
+      const words = norm(q.value.trim()).split(/\s+/).filter(Boolean); let n = 0;
+      items.forEach((d, k) => { const ok = !words.length || words.every(w => idx[k].includes(w)); d.hidden = !ok; d.classList.toggle('hit', ok && !!words.length); if (ok) n++; });
+      $$('.fq-cat').forEach(c => { c.hidden = !$$('.fq-item', c).some(d => !d.hidden); });
+      empty.hidden = n > 0;
+    });
+    /* nhóm đang xem */
+    const navs = $$('[data-faq-nav]');
+    if ('IntersectionObserver' in window && navs.length) {
+      const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) navs.forEach(a => a.classList.toggle('is-on', a.getAttribute('href') === '#' + en.target.id)); }), { rootMargin: '-35% 0px -55% 0px' });
+      $$('.fq-cat').forEach(c => io.observe(c));
+    }
+  }
 
   /* ---------- trang Phòng: carousel 5 chi nhánh + ngăn danh sách phòng ---------- */
   const rcTrack = $('#rcTrack');
@@ -527,6 +568,14 @@
     }
     if (has('.soon-visual .arch')) tlb.fromTo('.soon-visual .arch', { clipPath: 'inset(100% 0% 0% 0% round 999px 999px 18px 18px)' }, { clipPath: 'inset(0% 0% 0% 0% round 999px 999px 18px 18px)', duration: 1.5, ease: 'power3.inOut' }, 0)
                                     .from('.soon-stamp', { scale: .4, opacity: 0, duration: .9, ease: 'back.out(1.6)' }, .9);
+  }
+
+  /* ===================== TRANG HỎI ĐÁP ===================== */
+  if (page === 'faq') {
+    gsap.timeline({ defaults: { ease: 'power4.out' } })
+      .from('.fq-hero h1 .line > span', { yPercent: 110, duration: 1.3, stagger: .08 })
+      .from('.fq-hero [data-load]', { y: 22, opacity: 0, duration: .9, stagger: .07 }, .25);
+    $$('.fq-cat').forEach(c => gsap.from($$('.fq-cat-h, .fq-timeline li, .fq-item', c), { y: 24, opacity: 0, duration: .8, stagger: .05, ease: 'power3.out', scrollTrigger: { trigger: c, start: 'top 85%' } }));
   }
 
   /* ===================== TRANG PHÒNG ===================== */

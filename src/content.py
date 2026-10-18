@@ -106,6 +106,8 @@ def img_rule(sel, e, extra=''):
     e = e or {}
     if not e.get('src'): return ''
     x, y, z = e.get('x', 50), e.get('y', 50), float(e.get('z') or 1)
+    if e.get('fit') == 'full':
+        return f'.ph{sel}{{background-image:url("{e["src"]}");background-position:center;background-size:contain;background-repeat:no-repeat;background-color:#EDE3D4;{extra}}}\n'
     # đặt thẳng background-image trong <style> của trang để đường dẫn ảnh tính theo trang, không theo style.css
     css = f'background-image:url("{e["src"]}");background-position:{x}% {y}%;'
     if abs(z - 1) > .001: css += f'scale:{z};transform-origin:{x}% {y}%;'
