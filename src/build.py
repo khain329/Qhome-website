@@ -1,0 +1,554 @@
+"""Build Qhome site.
+Outputs:
+  site/                 bản deploy (GitHub/Netlify): index.html, cau-chuyen.html, assets/
+  index.html            bản xem trước cho Artifact (trang chủ, không có khung <html>)
+"""
+import json, re, os, shutil, sys
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.environ['QH_ROOT'] = ROOT
+sys.path.insert(0, os.path.join(ROOT, 'src'))
+import content as CT
+P = json.load(open(f'{ROOT}/src/parts.json', encoding='utf-8'))
+C = CT.load_content()
+B = CT.normalize(C['branches'])
+TIERS = CT.TIERS
+esc = CT.esc
+
+def dot(b): return f'<i class="dot" style="--d:{b["c"]}"></i>'
+ARROW = '<svg><use href="#arrow"/></svg>'
+HOME_URL = 'index.html'
+
+# ---------------- shared chrome ----------------
+def head(title, desc, page='home', rooms_for=None):
+    pj = json.dumps(C['pages'].get(page, {}), ensure_ascii=False).replace('</', '<\\/')
+    extra = '<style id="qh-img">\n' + CT.image_css(B, rooms_for) + '</style>\n<script type="application/json" id="qh-content">' + pj + '</script>\n'
+    return f'''<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{title}</title>
+<meta name="description" content="{desc}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+{extra}</head>
+'''
+
+def links(page):
+    home = page == 'home'
+    h = '' if home else HOME_URL
+    return dict(
+        brand='#top' if home else HOME_URL,
+        story='cau-chuyen.html',
+        rooms=f'{h}#phong', moments=f'{h}#khoanh-khac', amen=f'{h}#tien-nghi', contact=f'{h}#lien-he', branches=f'{h}#chi-nhanh',
+        cn=lambda i: f'{B[i]["slug"]}.html')
+
+def header(page, bi=None):
+    L = links(page)
+    cur = ' aria-current="page"' if page == 'story' else ''
+    ac = lambda i: ' aria-current="page"' if bi == i else ''
+    dd_items = ''.join(f'<li><a class="dd-item" href="{L["cn"](i)}"{ac(i)}><span class="n">{b["n"]}</span><span><b>{dot(b)}{esc(b["name"])}</b><small>{esc(b["dist"])}</small></span><svg class="go"><use href="#arrow"/></svg></a></li>' for i, b in enumerate(B))
+    return f'''<header class="site" id="top">
+  <div class="wrap nav">
+    <a class="brand" href="{L["brand"]}" aria-label="Q Home – trang chủ">
+      <span class="brand-mark"><svg><use href="#qmark"/></svg></span>
+      <span class="brand-name">Q Home<small>Một trải nghiệm</small></span>
+    </a>
+    <nav class="nav-links" aria-label="Điều hướng chính">
+      <a href="{L["story"]}"{cur}>Câu chuyện</a>
+      <a href="{L["rooms"]}">Phòng</a>
+      <a href="{L["moments"]}">Khoảnh khắc</a>
+      <a href="{L["amen"]}">Tiện nghi</a>
+      <div class="has-dd" id="dd">
+        <button class="dd-toggle{' is-current' if bi is not None else ''}" id="ddToggle" type="button" aria-expanded="false" aria-controls="ddPanel">Chi nhánh <svg><use href="#chev"/></svg></button>
+        <div class="dd" id="ddPanel">
+          <ul class="dd-list">{dd_items}</ul>
+          <div class="dd-preview" id="ddPrev" style="--brc:{B[0]["c"]}"><div class="ph" data-v="{B[0]["v"]}" id="ddPh"></div><span class="dd-cap" id="ddCap">5 chi nhánh</span></div>
+        </div>
+      </div>
+      <a class="btn btn-solid magnetic" href="{L["contact"]}">Liên hệ</a>
+    </nav>
+    <button class="burger" id="burger" aria-label="Mở menu" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button>
+  </div>
+</header>
+'''
+
+def mobile_menu(page, bi=None):
+    L = links(page)
+    cur = ' aria-current="page"' if page == 'story' else ''
+    items = ''.join(f'<a href="{L["cn"](i)}"{" aria-current=\"page\"" if bi == i else ""}><span>{b["n"]}</span>{b["name"]}<small>{b["dist"]}</small></a>' for i, b in enumerate(B))
+    return f'''<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+  <nav aria-label="Menu di động">
+    <a href="{L["story"]}"{cur}>Câu chuyện</a>
+    <a href="{L["rooms"]}">Phòng</a>
+    <a href="{L["moments"]}">Khoảnh khắc</a>
+    <a href="{L["amen"]}">Tiện nghi</a>
+    <button class="mm-acc" id="mmAcc" type="button" aria-expanded="false" aria-controls="mmSub">Chi nhánh <svg><use href="#chev"/></svg></button>
+    <div class="mm-sub" id="mmSub" hidden>{items}</div>
+    <a href="{L["contact"]}"><em>Liên hệ</em></a>
+  </nav>
+  <div class="mm-foot"><span>5 chi nhánh · Mở cửa 24/7</span><span>Hotline riêng từng chi nhánh ở mục Liên hệ</span></div>
+</div>
+'''
+
+def footer(page):
+    L = links(page)
+    br = ''.join(f'<a href="{L["cn"](i)}">{dot(b)}{b["name"]}</a>' for i, b in enumerate(B))
+    extra = '<button class="replay" id="replayCurtain" type="button">Xem lại màn kéo rèm</button>' if page == 'home' else f'<a class="replay" href="{HOME_URL}">Về trang chủ</a>'
+    return f'''<footer class="on-dark">
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="{L["brand"]}"><span class="brand-mark"><svg><use href="#qmark"/></svg></span><span class="brand-name">Q Home<small>Một trải nghiệm</small></span></a>
+        <p style="margin-top:18px;max-width:36ch">Staycation ấm cúng với 5 chi nhánh. Mở cửa 24/7.</p>
+        <p style="margin-top:14px"><a href="{L["story"]}">Câu chuyện Qhome</a></p>
+      </div>
+      <div>
+        <h4>Chi nhánh</h4>
+        {br}
+        <p style="margin-top:12px;word-break:break-all">qhome.mottrainghiem@gmail.com</p>
+      </div>
+      <div>
+        <h4>Theo dõi</h4>
+        <a href="https://www.facebook.com/qhome.staycation" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.instagram.com/qhome.staycation/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.tiktok.com/@qhome.staycation" target="_blank" rel="noopener">TikTok</a>
+      </div>
+    </div>
+    <div class="foot-bottom"><span>© <span id="yr">2026</span> Q Home – Một Trải Nghiệm</span>{extra}</div>
+  </div>
+</footer>
+'''
+
+SCRIPTS = '''<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="assets/main.js"></script>
+'''
+
+# ---------------- home ----------------
+def money(k): return f'{k*1000:,}'.replace(',', '.')
+
+def tier_cards():
+    pv = {'Standard': ('p-std', 'Standard 201 · Thích Quảng Đức'), 'Deluxe': ('p-dlx', 'Deluxe 204 · Thích Quảng Đức'),
+          'Premium': ('p-prm', 'Premium 301 · Sư Vạn Hạnh'), 'Suite': ('p-ste', 'Suite 302 · Sư Vạn Hạnh')}
+    desc = {'Standard': 'Phòng gọn gàng, mức giá dễ chịu nhất. Phòng 20m² ở Thích Quảng Đức có máy chiếu 100 inch.',
+            'Deluxe': 'Hạng phòng có ở cả 5 chi nhánh, mỗi phòng một bảng màu riêng. Lựa chọn quen thuộc cho một tối thư giãn.',
+            'Premium': 'Rộng hơn, nhiều góc ngồi và chi tiết trang trí hơn. Nhiều phòng có sofa riêng.',
+            'Suite': 'Hạng cao nhất, có bồn tắm nằm. Có ở Sư Vạn Hạnh và Ba Tháng Hai.'}
+    out = []
+    for k, t in enumerate(TIERS):
+        rs = [(b, r) for b in B for r in b['rooms'] if r['tier'] == t]
+        brs = [b for b in B if any(row[0] == t for row in b['rows'])]
+        m2 = sorted({r['m2'] for _, r in rs if r['m2']})
+        size = (f'{m2[0]}m²' if len(m2) == 1 else f'{m2[0]}–{m2[-1]}m²') if m2 else ''
+        low = min(row[1][0] for b in B for row in b['rows'] if row[0] == t)
+        chips = ''.join(f'<span>{dot(b)}{b["name"]}</span>' for b in brs)
+        v, cap = pv[t]
+        meta = f'<span>{len(rs)}+ phòng</span>' + (f'<span>{size}</span>' if size else '')
+        out.append(f'''
+          <article class="room">
+            <div class="room-media"><div class="ph" data-v="{v}" role="img" aria-label="{cap}"></div><div class="room-info"><span class="room-no">HẠNG 0{k+1}</span><h3>{t}</h3><p>{desc[t]}</p><div class="room-meta">{meta}</div></div></div>
+            <div class="tags" aria-label="Có tại các chi nhánh">{chips}</div>
+            <div class="room-foot"><span>Từ <b>{money(low)}đ</b> · combo 2H</span><a href="#chi-nhanh">Bảng giá {ARROW.replace('<svg>', '<svg width="14" height="14">')}</a></div>
+          </article>''')
+    return ''.join(out)
+
+def home_main():
+    m = P['main']
+    # thẻ hạng phòng
+    a = m.index('<div class="rooms-track">') + len('<div class="rooms-track">'); b = m.index('<div class="room-end">')
+    m = m[:a] + tier_cards() + '\n          ' + m[b:]
+    # gallery & door: ảnh thật
+    G = [('g1', 'p-ste', 'Bồn tắm · Suite 302 Sư Vạn Hạnh'), ('g2', 'p-32', 'Bồn tắm giữa vườn · Ba Tháng Hai'),
+         ('g3', 'p-jungle', 'Bồn tắm đá · Suite 401 Ba Tháng Hai'), ('g4', 'p-wave', 'Gương lượn sóng · Premium 402 Ba Tháng Hai'),
+         ('g5', 'p-bc2', 'Tường gỗ · Premium 302 Bàu Cát'), ('g6', 'p-tqd', 'Góc ghế vàng · Premium 102 Thích Quảng Đức'),
+         ('g7', 'p-svhlv', 'Phòng khách · Premium 401 Sư Vạn Hạnh')]
+    for g, v, cap in G:
+        m = re.sub(r'<button class="g-item ' + g + r'"[^>]*>.*?<span class="zoom">',
+                   f'<button class="g-item {g}" data-reveal data-v="{v}" data-cap="{cap}" aria-label="Xem ảnh: {cap}"><div class="ph" data-v="{v}"></div><span class="zoom">', m, count=1, flags=re.S)
+    m = m.replace('<div class="door-frame"><div class="ph" data-v="hello"></div></div>', '<div class="door-frame"><div class="ph" data-v="p-door"></div></div>')
+    m = m.replace('Bấm vào ảnh để xem lớn. Trên điện thoại, vuốt sang để xem ảnh tiếp theo.', 'Ảnh thật từ các phòng của Qhome. Bấm vào ảnh để xem lớn, vuốt sang để xem ảnh tiếp theo.')
+    # tiện nghi
+    m = m.replace('<h3>Bồn tắm thư giãn</h3><p>Ngâm mình trong nước ấm, bật một bản nhạc, để cả ngày dài trôi đi.</p>',
+                  '<h3>Bồn tắm thư giãn</h3><p>Các phòng Suite ở Sư Vạn Hạnh và Ba Tháng Hai có bồn tắm nằm. Ngâm mình thật lâu, để cả ngày dài trôi đi.</p>')
+    m = m.replace('<h3>Ngủ ngon</h3><p>Chăn gối mềm, rèm dày, ánh đèn dịu. Mọi thứ để bạn ngủ sâu hơn ở nhà.</p>',
+                  '<h3>Màn hình lớn &amp; Netflix</h3><p>TV 65–75 inch hoặc máy chiếu 100 inch, có sẵn Netflix và YouTube Premium cho một tối xem phim.</p>')
+    m = m.replace('<h3>Góc chụp ảnh</h3><p>Gương lượn sóng, tranh màu cam, đèn giấy. Góc nào cũng lên hình đẹp.</p>',
+                  '<h3>Góc chụp ảnh</h3><p>Gương lượn sóng, tranh nghệ thuật, mỗi phòng một bảng màu riêng. Góc nào cũng lên hình đẹp.</p>')
+    # khối phụ thuộc dữ liệu chi nhánh
+    m = re.sub(r'<div class="br-list" role="tablist" aria-label="Chọn chi nhánh" data-reveal>.*?</div>\s*<article', lambda mo: '<div class="br-list" role="tablist" aria-label="Chọn chi nhánh" data-reveal>' + CT.br_tabs(B) + '</div>\n        <article', m, count=1, flags=re.S)
+    m = re.sub(r'(<ul class="hotlines" data-reveal aria-label="Hotline từng chi nhánh">).*?(</ul>)', lambda mo: mo.group(1) + CT.hotlines(B) + mo.group(2), m, count=1, flags=re.S)
+    m = re.sub(r'(<section class="section loc" id="chi-nhanh" style=")[^"]*(")', lambda mo: mo.group(1) + f'--brc:{B[0]["c"]};--bron:{B[0]["ink"]};--brt:{B[0]["t"]}' + mo.group(2), m, count=1)
+    # danh sách phòng trong thẻ chi nhánh
+    b0 = B[0]
+    rooms_html = f'''
+          <div class="br-rooms br-feat">
+            <ul class="pfeat" id="brFeat" aria-label="Tiện ích"></ul>
+          </div>'''
+    m = m.replace('<a class="btn btn-line magnetic" id="brCall" href="tel:', f'<a class="btn btn-line magnetic" id="brPage" href="{B[0]["slug"]}.html">Xem trang chi nhánh</a>\n                <a class="btn btn-line magnetic" id="brCall" href="tel:', 1)
+    anchor = '<ul class="pnotes" id="brNotes">'
+    i = m.index(anchor); j = m.index('</div>', m.index('</ul>', i)) + len('</div>')
+    m = m[:j] + rooms_html + m[j:]
+    # nút dẫn sang trang Câu chuyện
+    i = m.index('<div class="facts" data-reveal>'); j = i
+    for _ in range(4): j = m.index('</div>', j) + len('</div>')
+    m = m[:j] + f'\n        <a class="btn btn-line magnetic home-story-link" href="cau-chuyen.html" data-reveal>Đọc câu chuyện Qhome {ARROW}</a>' + m[j:]
+    return m
+
+def page_home():
+    body = (f'<body data-page="home">\n{P["defs"]}\n\n{P["curtain"]}\n\n{P["badge"]}\n\n{header("home")}\n{mobile_menu("home")}\n'
+            f'{home_main()}\n\n{footer("home")}\n{P["lightbox"]}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
+    return head('Qhome Staycation', 'Q Home – Một Trải Nghiệm. Staycation ấm cúng với 5 chi nhánh, mở cửa 24/7.', 'home', -1) + body
+
+# ---------------- story ----------------
+HOMES = {
+    'Bàu Cát': ('Sáng, sạch và đầy màu', 'Phòng trắng sáng, đầu giường nhung và gạch ốp mỗi phòng một màu: đỏ, hồng, xanh rêu, xanh navy. 10 phòng Deluxe và Premium.'),
+    'Sư Vạn Hạnh': ('Rộng rãi, tối giản, có bồn tắm', 'Phòng rộng 20–32m², tường trắng, sàn gỗ và tranh nghệ thuật. Ba phòng Suite có bồn tắm nằm và ban công.'),
+    'Ba Tháng Hai': ('Một khu vườn trong phòng', 'Gương lượn sóng, tường sọc và ban công ở hầu hết các phòng. Suite 401 có bồn tắm đá giữa vườn cây. Chi nhánh duy nhất có đủ bốn hạng phòng.'),
+    'Lê Đại Hành': ('Ấm như phòng khách nhà mình', 'Sofa xanh rêu, rèm vải mỏng và đèn ngủ vàng. Gần gũi, giản dị, ngay giữa Quận 11.'),
+    'Thích Quảng Đức': ('Mỗi phòng một sắc màu', 'Tường hồng, cam, xanh rêu và máy chiếu 100 inch. Có bếp chung, bãi đậu xe hơi và khu vườn có ghế ngồi, trong hẻm yên tĩnh ở Phú Nhuận.'),
+}
+def hcards():
+    out = []
+    for i, b in enumerate(B):
+        tag, desc = b['tagline'], b['desc']
+        tiers = ''.join(f'<span>{r[0]}</span>' for r in b['rows'])
+        label = ''
+        out.append(f'''      <article class="hcard" style="--i:{i};--hc:{b["c"]};--hink:{b["ink"]}">
+        <div class="hcard-text">
+          <div>
+            <span class="n">CHI NHÁNH {b["n"]} · {b["dist"].upper()}{(' · ' + str(len(b['rooms'])) + ' PHÒNG') if not b['soon'] else ''}</span>
+            <h3>{b["name"]}</h3>
+            <p class="tag">{tag}</p>
+          </div>
+          <div>
+            <p>{desc}</p>
+            <div class="tiers" aria-label="Hạng phòng">{tiers}</div>
+          </div>
+          <a class="go" href="{b['slug']}.html">{'Sắp ra mắt' if b['soon'] else 'Xem phòng &amp; bảng giá'} {ARROW}</a>
+        </div>
+        <div class="hcard-media"><div class="ph" data-v="{b["v"]}" style="--brc:{b["c"]}">{label}</div></div>
+      </article>''')
+    return '\n'.join(out)
+
+def story_main():
+    return f'''<main>
+  <!-- HERO -->
+  <section class="s-hero">
+    <div class="wrap s-hero-grid">
+      <div class="s-hero-copy">
+        <p class="eyebrow" data-load>Câu chuyện · Q Home</p>
+        <h1 class="display">
+          <span class="line"><span>Một chiếc nhà</span></span>
+          <span class="line"><span>mà bọn mình</span></span>
+          <span class="line"><span>gọi là <span class="ital">Home.</span></span></span>
+        </h1>
+        <p class="lede" data-load>Q Home bắt đầu từ một ý nghĩ rất đơn giản: giữa Sài Gòn bận rộn, ai cũng cần một nơi để về. Không phải khách sạn, cũng không hẳn là nhà mình. Một chốn đủ quen để thả lỏng, đủ lạ để thấy mình đang được nghỉ.</p>
+        <div class="s-meta" data-load>
+          <div><b>5</b><span>ngôi nhà</span></div>
+          <div><b>40+</b><span>phòng nghỉ</span></div>
+          <div><b>24/7</b><span>luôn mở cửa</span></div>
+        </div>
+      </div>
+      <div class="arch s-hero-arch"><div class="ph" data-v="p-ldh" style="--pos:40% 50%" role="img" aria-label="Phòng nghỉ chi nhánh Lê Đại Hành"></div></div>
+    </div>
+  </section>
+
+  <!-- LOGO -->
+  <section class="s-logo on-dark" aria-labelledby="logoT">
+    <div class="s-logo-pin">
+      <div class="wrap s-logo-grid">
+        <div class="s-mark">
+          <svg viewBox="0 0 240 360" role="img" aria-label="Logo Q Home: chữ Q vẽ thành ô cửa vòm, có mái nhà nhỏ và chữ HOME">
+            <defs>
+              <linearGradient id="cuL" gradientUnits="userSpaceOnUse" x1="40" y1="20" x2="230" y2="330"><stop offset="0" stop-color="#F2DDB8"/><stop offset=".55" stop-color="#C79A68"/><stop offset="1" stop-color="#9E7247"/></linearGradient>
+              <radialGradient id="archGlow" cx="50%" cy="58%" r="55%"><stop offset="0" stop-color="#E59A4B" stop-opacity=".22"/><stop offset="1" stop-color="#E59A4B" stop-opacity="0"/></radialGradient>
+            </defs>
+            <path class="glow" d="M44 272 V109 A76 76 0 0 1 196 109 V272 Z"/>
+            <path class="stroke s-arch" pathLength="1" d="M44 272 V109 A76 76 0 0 1 196 109 V272 Z"/>
+            <path class="stroke s-roof" pathLength="1" d="M131 305 L169 267 L207 305"/>
+            <path class="stroke s-tail" pathLength="1" d="M185 283 L229 316"/>
+            <text class="s-word" x="120" y="346">HOME</text>
+            <g class="pin pin1"><circle cx="20" cy="150" r="11"/><text x="20" y="150">1</text></g>
+            <g class="pin pin2"><circle cx="169" cy="240" r="11"/><text x="169" y="240">2</text></g>
+            <g class="pin pin3"><circle cx="38" cy="339" r="11"/><text x="38" y="339">3</text></g>
+          </svg>
+        </div>
+        <div class="s-logo-text">
+          <p class="eyebrow">Ý nghĩa logo</p>
+          <h2 class="display" id="logoT">Chữ Q là <em>một ô cửa.</em></h2>
+          <ol class="s-notes">
+            <li class="s-note"><span class="n">1</span><div><h3>Ô cửa vòm</h3><p>Chữ Q được vẽ thành một ô cửa vòm. Bước qua cánh cửa ấy là bước vào nhà, để lại phía sau tiếng còi xe và lịch hẹn.</p></div></li>
+            <li class="s-note"><span class="n">2</span><div><h3>Mái nhà nhỏ</h3><p>Nét cuối của chữ Q gập lại thành một mái nhà. Một lời nhắc rằng ở đây bạn đang về, chứ không phải đi xa.</p></div></li>
+            <li class="s-note"><span class="n">3</span><div><h3>HOME</h3><p>Bên dưới là chữ HOME. Mỗi chi nhánh là một ngôi nhà, và bọn mình gọi tất cả là Home.</p></div></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MANIFESTO -->
+  <section class="s-manifesto">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>Điều bọn mình tin</p>
+      <p class="s-manifesto-text">Nghỉ ngơi không cần đi xa. Chỉ cần một căn phòng ấm, một ánh đèn vàng, một bồn nước nóng và đủ yên để nghe thấy chính mình. Ở Qhome, bạn được phép <em>dừng lại tất cả, và bắt đầu chữa lành.</em></p>
+      <div class="s-pillars">
+        <div class="s-pillar" data-reveal><h3>Dừng lại</h3><p>Tắt bớt thông báo, đặt điện thoại xuống. Ở đây không có gì phải vội.</p></div>
+        <div class="s-pillar" data-reveal><h3>Thả lỏng</h3><p>Bồn nước ấm, ánh đèn vàng, chăn gối mềm. Mọi thứ được sắp đặt để bạn nghỉ cho thật.</p></div>
+        <div class="s-pillar" data-reveal><h3>Trở về</h3><p>Rời Qhome với một cái đầu nhẹ hơn, và một lý do để quay lại.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FIVE HOMES -->
+  <section class="s-homes" aria-labelledby="homesT">
+    <div class="wrap">
+      <div class="s-homes-head">
+        <div>
+          <p class="eyebrow" data-reveal>Năm ngôi nhà</p>
+          <h2 class="display" id="homesT" data-split>Mỗi nhà <em>một tính cách.</em></h2>
+        </div>
+        <p class="lede" data-reveal>Cùng một cảm giác về nhà, nhưng mỗi chi nhánh có màu sắc và câu chuyện riêng. Cuộn xuống để gặp từng nhà.</p>
+      </div>
+      <div class="stack">
+{hcards()}
+      </div>
+    </div>
+  </section>
+
+  <!-- A DAY -->
+  <section class="section s-day" aria-labelledby="dayT">
+    <div class="wrap">
+      <p class="eyebrow" data-reveal>Một ngày ở Qhome</p>
+      <h2 class="display" id="dayT" data-split>Ghé lúc nào <em>cũng được.</em></h2>
+      <div class="day-track">
+        <div class="day-line" aria-hidden="true"><i></i></div>
+        <div class="day-stop"><time>Mọi lúc</time><b>Combo 2 giờ, 3 giờ</b><p>Ghé nghỉ ngắn giữa ngày, thêm giờ khi cần.</p></div>
+        <div class="day-stop"><time datetime="14:00">14:00</time><b>Nhận phòng ngày</b><p>Ở trọn từ đầu giờ chiều đến 11:00 hôm sau.</p></div>
+        <div class="day-stop"><time datetime="22:00">22:00</time><b>Nhận phòng qua đêm</b><p>Tắm nước ấm, ngủ một giấc thật sâu.</p></div>
+        <div class="day-stop"><time datetime="11:00">11:00</time><b>Trả phòng</b><p>Không cần báo thức sớm. Về nhà với một cái đầu nhẹ hơn.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section s-cta on-dark">
+    <div class="contact-glow"></div>
+    <div class="wrap s-cta-inner">
+      <p class="eyebrow" data-reveal>Hẹn gặp ở nhà</p>
+      <h2 class="display" data-split>Về nhà <em>một chút?</em></h2>
+      <p data-reveal>Chọn một trong năm ngôi nhà, nhắn hoặc gọi chi nhánh đó. Bọn mình giữ phòng cho bạn.</p>
+      <div class="s-cta-actions" data-reveal>
+        <a class="btn btn-solid magnetic" href="{HOME_URL}#chi-nhanh">Chọn chi nhánh {ARROW}</a>
+        <button class="btn btn-line magnetic" type="button" data-open-cw="call">Gọi đặt phòng</button>
+      </div>
+    </div>
+  </section>
+</main>'''
+
+def page_story():
+    body = (f'<body data-page="story">\n{P["defs"]}\n\n{P["badge"]}\n\n{header("story")}\n{mobile_menu("story")}\n'
+            f'{story_main()}\n\n{footer("story")}\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
+    return head('Câu chuyện Qhome', 'Câu chuyện Q Home – Một Trải Nghiệm: ý nghĩa logo, điều bọn mình tin và năm ngôi nhà.', 'story', -1) + body
+
+# ---------------- branch pages ----------------
+def others(bi):
+    out = []
+    for i, b in enumerate(B):
+        if i == bi: continue
+        soon = '<span class="soon">Sắp ra mắt</span>' if b['soon'] else ''
+        out.append(f'<a class="other" href="{b["slug"]}.html" style="--hc:{b["c"]};--hink:{b["ink"]}">{soon}<div><span class="n">CHI NHÁNH {b["n"]}</span><h3>{b["name"]}</h3><small>{b["dist"]}</small></div><span class="go">Xem chi nhánh {ARROW}</span></a>')
+    return f"""  <section class="section bp-others" aria-labelledby="othT">
+    <div class="wrap">
+      <div class="bp-head"><div><p class="eyebrow" data-reveal>Ghé nhà khác</p><h2 class="display" id="othT" data-split>Bốn ngôi nhà <em>còn lại.</em></h2></div></div>
+      <div class="others" data-reveal>{''.join(out)}</div>
+    </div>
+  </section>"""
+
+def bvars(b): return f'--brc:{b["c"]};--bron:{b["ink"]};--brt:{b["t"]}'
+
+def contact_bits(b):
+    return f"""<div class="bp-addr" data-load>
+          <b>{b['addr']}</b>
+          <span>Hotline <span class="phone-num">{b['phoneTxt']}</span> · Mở cửa 24/7</span>
+        </div>
+        <div class="bp-actions" data-load>
+          <a class="btn btn-solid magnetic" href="{b['map']}" target="_blank" rel="noopener">Chỉ đường {ARROW}</a>
+          <a class="btn btn-line magnetic" href="tel:{b['phone']}">Gọi {b['phoneTxt']}</a>
+          <a class="btn btn-line magnetic" href="https://zalo.me/{b['phone']}" target="_blank" rel="noopener">Nhắn Zalo</a>
+        </div>"""
+
+def branch_main(bi):
+    b = B[bi]; tag, desc = b['tagline'], b['desc']
+    tiers = [r[0] for r in b['rows']]
+    m2 = sorted({r['m2'] for r in b['rooms'] if r['m2']})
+    size = (f'{m2[0]}–{m2[-1]}m²' if len(m2) > 1 else f'{m2[0]}m²') if m2 else ''
+    low = min(r[1][0] for r in b['rows'])
+    rows = ''.join(f'<tr><th scope="row">{t}</th>' + ''.join(f'<td>{money(x)}</td>' for x in v) + '</tr>' for t, v in b['rows'])
+    notes = ''.join(f'<li>{x}</li>' for x in b['notes'])
+    near = ''.join(f'<li><span>{k}</span><span>{v}</span></li>' for k, v in [('Địa chỉ', b['addr']), ('Hotline', b['phoneTxt']), ('Giờ mở cửa', 'Mở cửa 24/7, nhận khách theo giờ, qua đêm và theo ngày'), ('Tiện ích', ', '.join(b['feat']))])
+    return f"""<main class="bp" style="{bvars(b)}">
+  <section class="bp-hero">
+    <div class="wrap bp-hero-grid">
+      <div class="bp-hero-copy">
+        <nav class="crumbs" aria-label="Vị trí trang" data-load><a href="{HOME_URL}">Trang chủ</a><span aria-hidden="true">/</span><a href="{HOME_URL}#chi-nhanh">Chi nhánh</a><span aria-hidden="true">/</span><span aria-current="page">{b['name']}</span></nav>
+        <p class="eyebrow" data-load>Chi nhánh {b['n']} · {b['dist']}</p>
+        <h1 class="display"><span class="line"><span>{b['name']}</span></span></h1>
+        <p class="bp-tag" data-load>{tag}</p>
+        <p class="lede" data-load>{desc}</p>
+        {contact_bits(b)}
+      </div>
+      <div class="bp-visual"><div class="arch bp-hero-arch"><div class="ph" data-v="{b['v']}" role="img" aria-label="Phòng tại chi nhánh {b['name']}"></div></div></div>
+    </div>
+    <div class="bp-stats"><div class="wrap">
+      <div class="bp-stat"><b>{len(b['rooms'])}</b><span>phòng nghỉ</span></div>
+      <div class="bp-stat"><b>{len(tiers)}</b><span>hạng: {', '.join(tiers)}</span></div>
+      {f'<div class="bp-stat"><b>{size}</b><span>diện tích phòng</span></div>' if size else '<div class="bp-stat"><b>24/7</b><span>mở cửa mọi ngày</span></div>'}
+      <div class="bp-stat"><b>{money(low)}đ</b><span>giá từ, combo 2 giờ</span></div>
+    </div></div>
+  </section>
+
+  <section class="section" id="cac-phong" aria-labelledby="roomsT">
+    <div class="wrap">
+      <div class="bp-head">
+        <div><p class="eyebrow" data-reveal>Các phòng</p><h2 class="display" id="roomsT" data-split>{len(b['rooms'])} phòng, <em>mỗi phòng một vẻ.</em></h2></div>
+        <p class="lede" data-reveal>Bấm vào phòng để xem ảnh chi tiết, dùng mũi tên để xem phòng kế tiếp.</p>
+      </div>
+      <div class="br-rooms" data-reveal>
+        <div class="br-rooms-head"><h4>Các phòng<small id="brRoomCount"></small></h4></div>
+        <ul class="pfeat" id="brFeat" aria-label="Tiện ích"></ul>
+        <div id="brRooms"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bp-price" id="bang-gia" aria-labelledby="priceT">
+    <div class="wrap">
+      <div class="bp-head">
+        <div><p class="eyebrow" data-reveal>Bảng giá</p><h2 class="display" id="priceT" data-split>Giá phòng <em>{b['name']}.</em></h2></div>
+        <p class="lede" data-reveal>Đơn vị: đồng. Giá có thể thay đổi vào dịp lễ, nhắn chi nhánh để có giá chính xác nhất.</p>
+      </div>
+      <div data-reveal>
+        <div class="price-scroll">
+          <table class="ptable">
+            <caption>Bảng giá phòng chi nhánh {b['name']} · đơn vị: đồng</caption>
+            <thead><tr><th scope="col">Hạng phòng</th><th scope="col">Combo 2H</th><th scope="col">Combo 3H</th><th scope="col">Giờ tiếp theo</th><th scope="col">Qua đêm<small>22h–11h</small></th><th scope="col">Phòng ngày<small>14h–11h</small></th></tr></thead>
+            <tbody>{rows}</tbody>
+          </table>
+        </div>
+        <ul class="pnotes">{notes}</ul>
+        <div class="bp-times">
+          <div class="bp-time"><b>Mọi lúc</b><span>Combo 2 giờ, 3 giờ</span></div>
+          <div class="bp-time"><b>22:00</b><span>Nhận phòng qua đêm, trả 11:00</span></div>
+          <div class="bp-time"><b>14:00</b><span>Nhận phòng ngày, trả 11:00 hôm sau</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="vi-tri" aria-labelledby="locT">
+    <div class="wrap bp-loc-grid">
+      <div class="bp-loc-card" data-reveal>
+        <p class="eyebrow">Đường đến nhà</p>
+        <h3 id="locT">{b['addr']}</h3>
+        <p>Mở Google Maps để chỉ đường. Đến nơi gọi hotline, bọn mình ra đón.</p>
+        <a class="btn magnetic" href="{b['map']}" target="_blank" rel="noopener">Mở Google Maps {ARROW}</a>
+      </div>
+      <ul class="bp-loc-list" data-reveal>{near}</ul>
+    </div>
+  </section>
+
+{others(bi)}
+</main>"""
+
+def soon_main(bi):
+    b = B[bi]
+    ring = (b['name'] + ' · COMING SOON · ' + b['dist'] + ' ·').upper()
+    return f"""<main class="bp bp-soon" style="{bvars(b)}">
+  <section class="soon-hero">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Vị trí trang" data-load style="margin-bottom:28px"><a href="{HOME_URL}">Trang chủ</a><span aria-hidden="true">/</span><a href="{HOME_URL}#chi-nhanh">Chi nhánh</a><span aria-hidden="true">/</span><span aria-current="page">{b['name']}</span></nav>
+      <div class="soon-grid">
+        <div class="soon-visual">
+          <div class="arch"><div class="ph" data-v="{b['v']}" role="img" aria-label="Phòng chi nhánh {b['name']}"></div></div>
+          <div class="soon-stamp" aria-hidden="true">
+            <svg viewBox="0 0 128 128"><defs><path id="soonC" d="M64 64m-46 0a46 46 0 1 1 92 0a46 46 0 1 1-92 0"/></defs><text font-family="Be Vietnam Pro, sans-serif" font-size="9.6" letter-spacing="2.6" fill="currentColor"><textPath href="#soonC">{ring}</textPath></text></svg>
+            <i>Q</i>
+          </div>
+        </div>
+        <div class="soon-copy">
+          <p class="eyebrow" data-load>Chi nhánh {b['n']} · {b['dist']}</p>
+          <h1 class="display"><span class="line"><span>{b['name']}</span></span></h1>
+          <p class="soon-big" data-load><span>Coming soon</span><span class="soon-dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></span></p>
+          <p class="lede" data-load>Trang của {b['name']} đang được hoàn thiện với ảnh phòng, danh sách phòng và bảng giá chi tiết. Trong lúc chờ, chi nhánh vẫn mở cửa 24/7, bạn cứ gọi hoặc nhắn để đặt phòng.</p>
+          <ul class="soon-list" data-load aria-label="Sắp cập nhật"><li class="lbl">Sắp cập nhật</li><li>Ảnh từng phòng</li><li>Danh sách phòng</li><li>Bảng giá chi tiết</li></ul>
+          {contact_bits(b)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+{others(bi)}
+</main>"""
+
+def page_branch(bi):
+    b = B[bi]
+    mainc = soon_main(bi) if b['soon'] else branch_main(bi)
+    body = (f'<body data-page="branch" data-branch="{bi}">\n{P["defs"]}\n\n{P["badge"]}\n\n{header("branch", bi)}\n{mobile_menu("branch", bi)}\n'
+            f'{mainc}\n\n{footer("branch")}\n{P["lightbox"]}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
+    title = f'Qhome {b["name"]}'
+    desc = f'Q Home {b["name"]}, {b["addr"]}. Hotline {b["phoneTxt"]}. Mở cửa 24/7.' + (f' {len(b["rooms"])} phòng, bảng giá và ảnh từng phòng.' if not b['soon'] else ' Trang đang được hoàn thiện.')
+    return head(title, desc, b['slug'], bi) + body
+
+# ---------------- write ----------------
+os.makedirs(f'{ROOT}/site/assets/img', exist_ok=True)
+css = open(f'{ROOT}/src/base.css', encoding='utf-8').read() + open(f'{ROOT}/src/story.css', encoding='utf-8').read() + open(f'{ROOT}/src/rooms.css', encoding='utf-8').read() + open(f'{ROOT}/src/branch.css', encoding='utf-8').read() + open(f'{ROOT}/src/admin_bridge.css', encoding='utf-8').read()
+open(f'{ROOT}/site/assets/style.css', 'w', encoding='utf-8').write(css)
+js = open(f'{ROOT}/src/main.js', encoding='utf-8').read().replace('/*__BRANCHES__*/[]', json.dumps(CT.js_data(B), ensure_ascii=False))
+open(f'{ROOT}/site/assets/main.js', 'w', encoding='utf-8').write(js)
+home = page_home(); story = page_story()
+open(f'{ROOT}/site/index.html', 'w', encoding='utf-8').write(home)
+open(f'{ROOT}/site/cau-chuyen.html', 'w', encoding='utf-8').write(story)
+branch_pages = [(b['slug'] + '.html', page_branch(i), None) for i, b in enumerate(B)]
+# nội dung hiệu lực cho trang quản trị + danh sách trang
+os.makedirs(f'{ROOT}/site/admin', exist_ok=True)
+json.dump(C, open(f'{ROOT}/site/admin/content.json', 'w', encoding='utf-8'), ensure_ascii=False)
+json.dump([{'key': 'home', 'file': 'index.html', 'name': 'Trang chủ'}, {'key': 'story', 'file': 'cau-chuyen.html', 'name': 'Câu chuyện'}] +
+          [{'key': b['slug'], 'file': b['slug'] + '.html', 'name': b['name'], 'branch': i} for i, b in enumerate(B)],
+          open(f'{ROOT}/site/admin/pages.json', 'w', encoding='utf-8'), ensure_ascii=False)
+# xoá trang chi nhánh cũ không còn dùng
+keep = {'index.html', 'cau-chuyen.html'} | {n for n, _, _ in branch_pages}
+for f in os.listdir(f'{ROOT}/site'):
+    if f.endswith('.html') and f not in keep: os.remove(f'{ROOT}/site/{f}')
+for name, html, _ in branch_pages: open(f'{ROOT}/site/{name}', 'w', encoding='utf-8').write(html)
+
+# preview for Artifact: strip document wrapper from home
+IS_NETLIFY = bool(os.environ.get('NETLIFY'))
+pv = home
+pv = pv.replace('<!doctype html>\n<html lang="vi">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n', '')
+pv = pv.replace('</head>\n<body data-page="home">', '<div hidden></div>').replace('</body>\n</html>\n', '')
+pv = pv.replace('<div hidden></div>', '<script>document.body.dataset.page="home"</script>')
+pv = pv.replace('<title>Qhome Staycation</title>\n', '<title>Qhome Staycation</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n', 1)
+if not IS_NETLIFY: open(f'{ROOT}/index.html', 'w', encoding='utf-8').write(pv)
+print('built', len(home), len(story), len(css), len(js))
+
+# ---------------- standalone (mỗi trang 1 file, tự chứa CSS/JS/ảnh) ----------------
+import base64
+def inline(html, keep):
+    css_inl = css
+    def sub(mo):
+        f = mo.group(1)
+        return 'url("data:image/webp;base64,' + base64.b64encode(open(f'{ROOT}/site/assets/img/{f}', 'rb').read()).decode() + '")'
+    css_inl = re.sub(r'url\("img/([\w/]+\.webp)"\)', sub, css_inl)
+    html = re.sub(r'url\("assets/img/([\w/]+\.webp)"\)', sub, html)
+    html = html.replace('<link rel="stylesheet" href="assets/style.css">', '<style>\n' + css_inl + '\n</style>')
+    html = html.replace('<script src="assets/main.js"></script>', '<script>\n' + js.replace('</script', '<\\/script') + '\n</script>')
+    assert 'assets/style.css' not in html and 'assets/main.js' not in html
+    return html
+os.makedirs(f'{ROOT}/export', exist_ok=True)
+for name, html, keep in ([] if IS_NETLIFY else [('index.html', home, None), ('cau-chuyen.html', story, None)] + branch_pages):
+    open(f'{ROOT}/export/{name}', 'w', encoding='utf-8').write(inline(html, keep))
+print('standalone ok')

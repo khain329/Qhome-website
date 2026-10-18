@@ -1,0 +1,554 @@
+[
+ {
+  "n": "01",
+  "name": "Bàu Cát",
+  "dist": "Quận Tân Bình",
+  "addr": "12 Bàu Cát 3, Quận Tân Bình",
+  "phone": "0795509579",
+  "map": "https://maps.app.goo.gl/VEbDCYMoTWhVDDp36",
+  "c": "#C8930E",
+  "ink": "#2A1E16",
+  "t": "#8C6608",
+  "v": "p-bc3",
+  "rows": [
+   [
+    "Deluxe",
+    [
+     290,
+     340,
+     50,
+     450,
+     850
+    ]
+   ],
+   [
+    "Premium",
+    [
+     320,
+     370,
+     50,
+     490,
+     950
+    ]
+   ]
+  ],
+  "notes": [
+   "Combo 2H, 3H theo bảng áp dụng thứ Bảy và Chủ nhật",
+   "Giảm 15% combo qua đêm từ Chủ nhật đến thứ Năm"
+  ],
+  "phoneTxt": "0795 509 579",
+  "rooms": [
+   {
+    "no": "101",
+    "tier": "Deluxe",
+    "m2": null,
+    "v": "r-23",
+    "ar": 0.8
+   },
+   {
+    "no": "103",
+    "tier": "Deluxe",
+    "m2": null,
+    "v": "r-24",
+    "ar": 0.8
+   },
+   {
+    "no": "201",
+    "tier": "Deluxe",
+    "m2": null,
+    "v": "r-25",
+    "ar": 0.8
+   },
+   {
+    "no": "203",
+    "tier": "Deluxe",
+    "m2": null,
+    "v": "r-26",
+    "ar": 0.8
+   },
+   {
+    "no": "102",
+    "tier": "Premium",
+    "m2": null,
+    "v": "r-27",
+    "ar": 0.8
+   },
+   {
+    "no": "104",
+    "tier": "Premium",
+    "m2": null,
+    "v": "r-28",
+    "ar": 0.8
+   },
+   {
+    "no": "202",
+    "tier": "Premium",
+    "m2": null,
+    "v": "r-29",
+    "ar": 0.8
+   },
+   {
+    "no": "204",
+    "tier": "Premium",
+    "m2": null,
+    "v": "r-30",
+    "ar": 0.8
+   },
+   {
+    "no": "302",
+    "tier": "Premium",
+    "m2": null,
+    "v": "r-31",
+    "ar": 0.8
+   },
+   {
+    "no": "304",
+    "tier": "Premium",
+    "m2": null,
+    "v": "r-32",
+    "ar": 0.8
+   }
+  ],
+  "feat": [
+   "Cửa sổ",
+   "TV 65 inch",
+   "Phòng tắm đứng"
+  ],
+  "slug": "bau-cat"
+ },
+ {
+  "n": "02",
+  "name": "Sư Vạn Hạnh",
+  "dist": "Quận 10",
+  "addr": "662/19 Sư Vạn Hạnh, Phường 12, Quận 10",
+  "phone": "0797568685",
+  "map": "https://maps.app.goo.gl/R53JXX4Lujo7iTA47",
+  "c": "#112E50",
+  "ink": "#FFFFFF",
+  "t": "#112E50",
+  "v": "p-svh",
+  "rows": [
+   [
+    "Deluxe",
+    [
+     290,
+     340,
+     70,
+     490,
+     850
+    ]
+   ],
+   [
+    "Premium",
+    [
+     320,
+     370,
+     70,
+     590,
+     950
+    ]
+   ],
+   [
+    "Suite",
+    [
+     350,
+     400,
+     70,
+     650,
+     1050
+    ]
+   ]
+  ],
+  "notes": [
+   "Giảm 15% combo giờ từ thứ Hai đến thứ Sáu",
+   "Giảm 15% combo qua đêm từ Chủ nhật đến thứ Năm"
+  ],
+  "phoneTxt": "0797 568 685",
+  "rooms": [
+   {
+    "no": "101",
+    "tier": "Deluxe",
+    "m2": 20,
+    "v": "r-33",
+    "ar": 0.707
+   },
+   {
+    "no": "102",
+    "tier": "Deluxe",
+    "m2": 20,
+    "v": "r-34",
+    "ar": 0.707
+   },
+   {
+    "no": "201",
+    "tier": "Premium",
+    "m2": 30,
+    "v": "r-35",
+    "ar": 0.707
+   },
+   {
+    "no": "301",
+    "tier": "Premium",
+    "m2": 30,
+    "v": "r-36",
+    "ar": 0.707
+   },
+   {
+    "no": "401",
+    "tier": "Premium",
+    "m2": 30,
+    "v": "r-37",
+    "ar": 0.707
+   },
+   {
+    "no": "202",
+    "tier": "Suite",
+    "m2": 32,
+    "v": "r-38",
+    "ar": 0.707
+   },
+   {
+    "no": "302",
+    "tier": "Suite",
+    "m2": 32,
+    "v": "r-39",
+    "ar": 0.707
+   },
+   {
+    "no": "402",
+    "tier": "Suite",
+    "m2": 32,
+    "v": "r-40",
+    "ar": 0.707
+   }
+  ],
+  "feat": [
+   "Netflix & YouTube, TV 75 inch",
+   "Cửa sổ hoặc ban công",
+   "Suite có bồn tắm nằm"
+  ],
+  "slug": "su-van-hanh"
+ },
+ {
+  "n": "03",
+  "name": "Ba Tháng Hai",
+  "dist": "Quận 10",
+  "addr": "436A/97 đường 3 Tháng 2, Phường 12, Quận 10",
+  "phone": "0797577567",
+  "map": "https://maps.app.goo.gl/ckAAprhXjgSqK65eA",
+  "c": "#0C3120",
+  "ink": "#FFFFFF",
+  "t": "#0C3120",
+  "v": "p-32",
+  "rows": [
+   [
+    "Standard",
+    [
+     250,
+     300,
+     70,
+     390,
+     750
+    ]
+   ],
+   [
+    "Deluxe",
+    [
+     290,
+     340,
+     70,
+     490,
+     850
+    ]
+   ],
+   [
+    "Premium",
+    [
+     320,
+     370,
+     70,
+     590,
+     950
+    ]
+   ],
+   [
+    "Suite",
+    [
+     350,
+     400,
+     70,
+     650,
+     1050
+    ]
+   ]
+  ],
+  "notes": [
+   "Giảm 15% combo giờ từ thứ Hai đến thứ Sáu",
+   "Giảm 15% combo qua đêm từ Chủ nhật đến thứ Năm"
+  ],
+  "phoneTxt": "0797 577 567",
+  "rooms": [
+   {
+    "no": "303",
+    "tier": "Standard",
+    "m2": 15,
+    "v": "r-01",
+    "ar": 0.707
+   },
+   {
+    "no": "101",
+    "tier": "Deluxe",
+    "m2": 25,
+    "v": "r-02",
+    "ar": 0.707
+   },
+   {
+    "no": "301",
+    "tier": "Deluxe",
+    "m2": 25,
+    "v": "r-03",
+    "ar": 0.707
+   },
+   {
+    "no": "102",
+    "tier": "Premium",
+    "m2": 30,
+    "v": "r-04",
+    "ar": 0.707
+   },
+   {
+    "no": "201",
+    "tier": "Premium",
+    "m2": 25,
+    "v": "r-05",
+    "ar": 0.707
+   },
+   {
+    "no": "202",
+    "tier": "Premium",
+    "m2": 30,
+    "v": "r-06",
+    "ar": 0.707
+   },
+   {
+    "no": "302",
+    "tier": "Premium",
+    "m2": 30,
+    "v": "r-07",
+    "ar": 0.707
+   },
+   {
+    "no": "402",
+    "tier": "Premium",
+    "m2": 30,
+    "v": "r-08",
+    "ar": 0.707
+   },
+   {
+    "no": "401",
+    "tier": "Suite",
+    "m2": 30,
+    "v": "r-09",
+    "ar": 0.707
+   }
+  ],
+  "feat": [
+   "Ban công",
+   "Netflix & YouTube, TV 70 inch",
+   "Suite 401 có bồn tắm nằm"
+  ],
+  "slug": "ba-thang-hai"
+ },
+ {
+  "n": "04",
+  "name": "Lê Đại Hành",
+  "dist": "Quận 11",
+  "addr": "451 Lê Đại Hành, Phường 11, Quận 11",
+  "phone": "0798539395",
+  "map": "https://www.google.com/maps/search/?api=1&query=Q+Home+451+L%C3%AA+%C4%90%E1%BA%A1i+H%C3%A0nh+Qu%E1%BA%ADn+11",
+  "c": "#6A3C00",
+  "ink": "#FFFFFF",
+  "t": "#6A3C00",
+  "v": "p-ldh",
+  "rows": [
+   [
+    "Standard",
+    [
+     240,
+     270,
+     50,
+     390,
+     750
+    ]
+   ],
+   [
+    "Deluxe",
+    [
+     270,
+     300,
+     50,
+     490,
+     850
+    ]
+   ]
+  ],
+  "notes": [
+   "Giảm 15% combo giờ từ thứ Hai đến thứ Sáu",
+   "Giảm 15% combo qua đêm từ Chủ nhật đến thứ Năm"
+  ],
+  "phoneTxt": "0798 539 395",
+  "rooms": [],
+  "feat": [],
+  "slug": "le-dai-hanh"
+ },
+ {
+  "n": "05",
+  "name": "Thích Quảng Đức",
+  "dist": "Quận Phú Nhuận",
+  "addr": "3/37 hẻm 3 Thích Quảng Đức, Quận Phú Nhuận",
+  "phone": "0797257357",
+  "map": "https://maps.app.goo.gl/EyanVrqBs58NvM5U6",
+  "c": "#70240D",
+  "ink": "#FFFFFF",
+  "t": "#70240D",
+  "v": "p-tqd",
+  "rows": [
+   [
+    "Standard",
+    [
+     220,
+     250,
+     50,
+     420,
+     750
+    ]
+   ],
+   [
+    "Deluxe",
+    [
+     250,
+     280,
+     50,
+     490,
+     850
+    ]
+   ],
+   [
+    "Premium",
+    [
+     280,
+     310,
+     50,
+     590,
+     950
+    ]
+   ]
+  ],
+  "notes": [
+   "Combo 2H, 3H theo bảng áp dụng thứ Bảy và Chủ nhật",
+   "Giảm 15% combo qua đêm từ Chủ nhật đến thứ Năm"
+  ],
+  "phoneTxt": "0797 257 357",
+  "rooms": [
+   {
+    "no": "202",
+    "tier": "Standard",
+    "m2": 15,
+    "v": "r-10",
+    "ar": 1.0
+   },
+   {
+    "no": "203",
+    "tier": "Standard",
+    "m2": 15,
+    "v": "r-11",
+    "ar": 1.0
+   },
+   {
+    "no": "302",
+    "tier": "Standard",
+    "m2": 15,
+    "v": "r-12",
+    "ar": 1.0
+   },
+   {
+    "no": "303",
+    "tier": "Standard",
+    "m2": 15,
+    "v": "r-13",
+    "ar": 1.0
+   },
+   {
+    "no": "101",
+    "tier": "Standard",
+    "m2": 20,
+    "v": "r-14",
+    "ar": 0.703
+   },
+   {
+    "no": "201",
+    "tier": "Standard",
+    "m2": 20,
+    "v": "r-15",
+    "ar": 0.704
+   },
+   {
+    "no": "301",
+    "tier": "Standard",
+    "m2": 20,
+    "v": "r-16",
+    "ar": 0.706
+   },
+   {
+    "no": "401",
+    "tier": "Standard",
+    "m2": 20,
+    "v": "r-17",
+    "ar": 0.706
+   },
+   {
+    "no": "204",
+    "tier": "Deluxe",
+    "m2": 20,
+    "v": "r-18",
+    "ar": 1.0
+   },
+   {
+    "no": "304",
+    "tier": "Deluxe",
+    "m2": 20,
+    "v": "r-19",
+    "ar": 1.0
+   },
+   {
+    "no": "403",
+    "tier": "Deluxe",
+    "m2": 20,
+    "v": "r-20",
+    "ar": 1.0
+   },
+   {
+    "no": "102",
+    "tier": "Premium",
+    "m2": 30,
+    "v": "r-21",
+    "ar": 1.0
+   },
+   {
+    "no": "402",
+    "tier": "Premium",
+    "m2": 30,
+    "v": "r-22",
+    "ar": 1.0
+   }
+  ],
+  "feat": [
+   "Cửa sổ lớn, ban công cây xanh",
+   "TV 65 inch, phòng 20m² có máy chiếu 100 inch",
+   "Netflix & YouTube Premium",
+   "Bếp chung, bãi đậu xe hơi",
+   "Khu vườn có ghế ngồi"
+  ],
+  "slug": "thich-quang-duc"
+ }
+]

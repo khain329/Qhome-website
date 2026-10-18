@@ -1,0 +1,8 @@
+
+/* ===================== XEM TRƯỚC TRONG TRANG QUẢN TRỊ ===================== */
+html.admin-preview .cw,html.admin-preview .mock-badge,html.admin-preview .curtain{display:none!important}
+html.admin-preview [data-ek],html.admin-preview [data-tk]{cursor:pointer}
+html.admin-preview [data-tk]:hover{box-shadow:0 0 0 2px rgba(229,154,75,.85);border-radius:4px}
+html.admin-preview .arch:hover,html.admin-preview .g-item:hover,html.admin-preview .room-media:hover,html.admin-preview .hcard-media:hover,html.admin-preview .door-frame:hover{outline:3px dashed rgba(229,154,75,.95);outline-offset:-6px}
+html.admin-preview .qh-focus{outline:3px solid #E59A4B!important;outline-offset:-4px;box-shadow:0 0 0 6px rgba(229,154,75,.25)!important;transition:outline-color .3s}
+html.admin-preview .hero-arch .ph{animation:none}

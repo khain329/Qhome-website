@@ -1,0 +1,11 @@
+{
+  "name": "qhome-website",
+  "private": true,
+  "type": "module",
+  "description": "Website Qhome Staycation + trang quản trị /admin",
+  "dependencies": {
+    "@netlify/blobs": "11.1.2",
+    "@netlify/functions": "6.0.0",
+    "@netlify/identity": "2.0.0"
+  }
+}

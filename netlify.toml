@@ -1,0 +1,22 @@
+# Qhome – cấu hình Netlify
+[build]
+  command = "python3 src/build.py"
+  publish = "site"
+
+[build.environment]
+  NODE_VERSION = "20"
+  PYTHON_VERSION = "3.12"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Trước khi dựng: kéo nội dung mới nhất (do trang quản trị lưu) từ Netlify Blobs về src/content.json
+[[plugins]]
+  package = "/plugins/qh-content"
+
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+    Cache-Control = "no-cache"

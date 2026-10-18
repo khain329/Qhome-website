@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Qhome Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="q" viewBox="0 0 44 60"><path d="M8 50V20a14 14 0 0 1 28 0v30H8z" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M24 56l7-7 7 7M34 52l8 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-img" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="10" r="1.8" fill="currentColor"/><path d="M4 17l5-5 4 4 3-3 4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-txt" viewBox="0 0 24 24"><path d="M5 6h14M12 6v13M8.5 19h7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-6.5 8 6.5V20H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="10" r="2.3" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M6 14l6-6 6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 10l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 7L4 12l5 5M4 12h10a6 6 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 -3)"/></symbol>
+    <symbol id="i-desk" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 20h6M12 16.5V20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 17.5h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.6 2.2c-.8.4-1.2 1-1.2 1.8M12 16.6v.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 5h5v5M19 5l-8 8M18 14v5H5V6h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<!-- ĐĂNG NHẬP -->
+<section class="auth" id="auth" hidden>
+  <div class="auth-card">
+    <div class="auth-brand"><span class="mark"><svg><use href="#q"/></svg></span><div><b>Q Home</b><small>Trang quản trị</small></div></div>
+    <form id="fLogin" class="auth-form">
+      <h1>Đăng nhập</h1>
+      <label>Email<input type="email" id="lEmail" autocomplete="username" required></label>
+      <label>Mật khẩu<input type="password" id="lPass" autocomplete="current-password" required></label>
+      <button class="btn primary" type="submit">Đăng nhập</button>
+      <button class="link" type="button" id="toForgot">Quên mật khẩu?</button>
+    </form>
+    <form id="fForgot" class="auth-form" hidden>
+      <h1>Lấy lại mật khẩu</h1>
+      <p class="muted">Nhập email, bọn mình gửi đường dẫn đặt lại mật khẩu.</p>
+      <label>Email<input type="email" id="fEmail" required></label>
+      <button class="btn primary" type="submit">Gửi email</button>
+      <button class="link" type="button" id="toLogin">Quay lại đăng nhập</button>
+    </form>
+    <form id="fSetPass" class="auth-form" hidden>
+      <h1 id="spTitle">Đặt mật khẩu</h1>
+      <p class="muted" id="spNote">Chọn mật khẩu để vào trang quản trị.</p>
+      <label>Mật khẩu mới<input type="password" id="spPass" minlength="8" autocomplete="new-password" required></label>
+      <button class="btn primary" type="submit">Lưu mật khẩu và vào trang</button>
+    </form>
+    <p class="auth-msg" id="authMsg" role="status"></p>
+  </div>
+</section>
+
+<!-- ỨNG DỤNG -->
+<div class="app" id="app" hidden>
+  <header class="top">
+    <div class="brand"><span class="mark"><svg><use href="#q"/></svg></span><b>Q Home</b><span class="tag">Quản trị</span></div>
+    <span class="status" id="status" data-s="clean">Đã xuất bản</span>
+    <span class="sp"></span>
+    <a class="btn ghost sm" href="../" target="_blank" rel="noopener"><svg><use href="#i-ext"/></svg><span>Xem web</span></a>
+    <button class="btn primary" id="publish" type="button">Xuất bản</button>
+    <div class="who"><span id="who"></span><button class="link" id="logout" type="button">Đăng xuất</button></div>
+  </header>
+
+  <nav class="side" id="side" aria-label="Mục quản trị"></nav>
+
+  <main class="view" id="view"></main>
+</div>
+
+<!-- KHUNG CẮT ẢNH -->
+<div class="modal" id="crop" hidden role="dialog" aria-modal="true" aria-labelledby="cropT">
+  <div class="modal-card crop-card">
+    <div class="m-head"><div><p class="eyebrow">Căn khung ảnh</p><h2 id="cropT">Ảnh</h2></div><button class="icon" type="button" data-close aria-label="Đóng"><svg><use href="#i-x"/></svg></button></div>
+    <div class="crop-body">
+      <div class="crop-stage-wrap">
+        <div class="crop-stage" id="cropStage"><img id="cropImg" alt=""><div class="crop-frame" id="cropFrame"><span class="grid"></span></div></div>
+        <p class="hint" id="cropHint">Kéo khung để chọn phần ảnh hiển thị. Kéo thanh bên dưới để phóng to.</p>
+        <label class="zoom"><span>Thu phóng</span><input type="range" id="cropZoom" min="1" max="3" step="0.01" value="1"><output id="cropZv">100%</output></label>
+      </div>
+      <aside class="crop-side">
+        <p class="label">Trên máy tính</p>
+        <div class="pv" id="pvDesk"><div class="pv-img"></div></div>
+        <div id="pvPhoneWrap"><p class="label">Trên điện thoại</p>
+        <div class="pv pv-phone" id="pvPhone"><div class="pv-img"></div></div></div>
+        <div class="crop-actions">
+          <label class="btn ghost file">Đổi ảnh khác<input type="file" id="cropFile" accept="image/*"></label>
+          <button class="btn ghost" type="button" id="cropCenter">Căn giữa</button>
+        </div>
+      </aside>
+    </div>
+    <div class="m-foot"><button class="btn ghost" type="button" data-close>Huỷ</button><button class="btn primary" type="button" id="cropApply">Áp dụng</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="busy" id="busy" hidden><span></span><p id="busyMsg">Đang tải ảnh lên…</p></div>
+
+<script type="module" src="admin.js"></script>
+</body>
+</html>
