@@ -107,3 +107,15 @@
 .s-cta .btn-solid{background:var(--cream-on-dark);color:var(--espresso)}
 .s-cta .btn-solid:hover{background:#fff}
 .home-story-link{align-self:flex-start;margin-top:4px}
+
+/* video TikTok */
+.s-video-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(325px,420px);gap:clamp(36px,6vw,96px);align-items:center}
+.s-video-copy{display:flex;flex-direction:column;gap:20px;align-items:flex-start}
+.s-video-copy .display em{font-style:italic;font-weight:300;color:var(--wood)}
+.s-video-frame{position:relative;justify-self:center;width:100%;max-width:420px;min-height:740px;border-radius:28px;padding:10px;background:var(--espresso);box-shadow:0 40px 80px -40px rgba(42,30,22,.55);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.s-video-frame::before{content:"Đang tải video…";position:absolute;inset:0;display:grid;place-items:center;color:var(--muted-on-dark);font-size:13px;letter-spacing:.08em;z-index:0}
+.s-video-frame .tiktok-embed{position:relative;z-index:1;margin:0!important;width:100%;border-radius:20px;overflow:hidden;background:var(--espresso)}
+.s-video-frame .tiktok-embed section{padding:24px;color:var(--cream-on-dark);font-size:14px;line-height:1.6}
+.s-video-frame .tiktok-embed section a{color:#E9B984}
+.s-video-frame.loaded::before{display:none}
+@media (max-width:900px){.s-video-grid{grid-template-columns:minmax(0,1fr)}.s-video-frame{min-height:0;max-width:380px;padding:8px}}

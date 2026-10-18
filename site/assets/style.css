@@ -545,6 +545,13 @@ html.curtain-lock,html.curtain-lock body{overflow:hidden}
   *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
 }
 
+/* nút lên đầu trang ở chân trang */
+.foot-acts{display:inline-flex;align-items:center;gap:22px;flex-wrap:wrap}
+.to-top{display:inline-flex;align-items:center;gap:10px;font:500 12px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--cream-on-dark)}
+.to-top-ic{width:40px;height:40px;border-radius:50%;border:1px solid rgba(242,227,207,.35);display:grid;place-items:center;transition:background .35s var(--ease),color .35s,transform .45s var(--ease)}
+.to-top-ic svg{width:15px;height:15px;transform:rotate(-90deg)}
+.to-top:hover .to-top-ic{background:var(--cream-on-dark);color:var(--espresso);transform:translateY(-3px)}
+
 /* ===================== TRANG CÂU CHUYỆN ===================== */
 .nav-links > a[aria-current="page"]::after{transform:scaleX(1)}
 .mobile-menu nav a[aria-current="page"]{color:#E9B984}
@@ -653,6 +660,18 @@ html.curtain-lock,html.curtain-lock body{overflow:hidden}
 .s-cta .btn-solid{background:var(--cream-on-dark);color:var(--espresso)}
 .s-cta .btn-solid:hover{background:#fff}
 .home-story-link{align-self:flex-start;margin-top:4px}
+
+/* video TikTok */
+.s-video-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(325px,420px);gap:clamp(36px,6vw,96px);align-items:center}
+.s-video-copy{display:flex;flex-direction:column;gap:20px;align-items:flex-start}
+.s-video-copy .display em{font-style:italic;font-weight:300;color:var(--wood)}
+.s-video-frame{position:relative;justify-self:center;width:100%;max-width:420px;min-height:740px;border-radius:28px;padding:10px;background:var(--espresso);box-shadow:0 40px 80px -40px rgba(42,30,22,.55);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.s-video-frame::before{content:"Đang tải video…";position:absolute;inset:0;display:grid;place-items:center;color:var(--muted-on-dark);font-size:13px;letter-spacing:.08em;z-index:0}
+.s-video-frame .tiktok-embed{position:relative;z-index:1;margin:0!important;width:100%;border-radius:20px;overflow:hidden;background:var(--espresso)}
+.s-video-frame .tiktok-embed section{padding:24px;color:var(--cream-on-dark);font-size:14px;line-height:1.6}
+.s-video-frame .tiktok-embed section a{color:#E9B984}
+.s-video-frame.loaded::before{display:none}
+@media (max-width:900px){.s-video-grid{grid-template-columns:minmax(0,1fr)}.s-video-frame{min-height:0;max-width:380px;padding:8px}}
 
 /* ===================== ẢNH THẬT & DANH SÁCH PHÒNG ===================== */
 .ph[data-v="p-bc3"]{--img:url("img/bc3.webp")}

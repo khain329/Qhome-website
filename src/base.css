@@ -544,3 +544,10 @@ html.curtain-lock,html.curtain-lock body{overflow:hidden}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
 }
+
+/* nút lên đầu trang ở chân trang */
+.foot-acts{display:inline-flex;align-items:center;gap:22px;flex-wrap:wrap}
+.to-top{display:inline-flex;align-items:center;gap:10px;font:500 12px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--cream-on-dark)}
+.to-top-ic{width:40px;height:40px;border-radius:50%;border:1px solid rgba(242,227,207,.35);display:grid;place-items:center;transition:background .35s var(--ease),color .35s,transform .45s var(--ease)}
+.to-top-ic svg{width:15px;height:15px;transform:rotate(-90deg)}
+.to-top:hover .to-top-ic{background:var(--cream-on-dark);color:var(--espresso);transform:translateY(-3px)}

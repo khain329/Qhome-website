@@ -123,7 +123,7 @@ def footer(page):
         <a href="https://www.tiktok.com/@qhome.staycation" target="_blank" rel="noopener">TikTok</a>
       </div>
     </div>
-    <div class="foot-bottom"><span>© <span id="yr">2026</span> Q Home – Một Trải Nghiệm</span>{extra}</div>
+    <div class="foot-bottom"><span>© <span id="yr">2026</span> Q Home – Một Trải Nghiệm</span><span class="foot-acts">{extra}<button class="to-top" type="button" data-top aria-label="Lên đầu trang">Lên đầu trang <span class="to-top-ic"><svg><use href="#arrow"/></svg></span></button></span></div>
   </div>
 </footer>
 '''
@@ -200,8 +200,6 @@ def home_main():
     m = m[:j] + rooms_html + m[j:]
     # bỏ mục Tiện nghi
     m = re.sub(r'\s*<!-- AMENITIES -->\s*<section class="section amen" id="tien-nghi">.*?</section>', '', m, count=1, flags=re.S)
-    # bỏ mục Khoảnh khắc (gallery)
-    m = re.sub(r'\s*<!-- GALLERY -->\s*<section class="section" id="khoanh-khac">.*?</section>', '', m, count=1, flags=re.S)
     # nút dẫn sang trang Phòng từ mục Hạng phòng
     m = re.sub(r'(<section class="rooms on-dark" id="phong">.*?<div class="wrap rooms-head">.*?)<p data-reveal>(.*?)</p>', lambda mo: mo.group(1) + f'<div class="rooms-head-side" data-reveal><p>{mo.group(2)}</p><a class="btn btn-line magnetic rooms-all" href="phong.html">Xem phòng từng chi nhánh {ARROW}</a></div>', m, count=1, flags=re.S)
     # nút dẫn sang trang Câu chuyện
@@ -298,6 +296,21 @@ def story_main():
             <li class="s-note"><span class="n">3</span><div><h3>HOME</h3><p>Bên dưới là chữ HOME. Mỗi chi nhánh là một ngôi nhà, và bọn mình gọi tất cả là Home.</p></div></li>
           </ol>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIDEO -->
+  <section class="section s-video" aria-labelledby="videoT">
+    <div class="wrap s-video-grid">
+      <div class="s-video-copy">
+        <p class="eyebrow" data-reveal>Năm ngôi nhà trong một phút</p>
+        <h2 class="display" id="videoT" data-split>Ghé qua cả năm nhà, <em>trước khi về một nhà.</em></h2>
+        <p class="lede" data-reveal>Một vòng ngắn qua Lê Đại Hành, Sư Vạn Hạnh, Thích Quảng Đức, Ba Tháng Hai và Bàu Cát. Mỗi nơi một bảng màu, cùng một cảm giác được về nhà.</p>
+        <a class="btn btn-line magnetic" href="https://www.tiktok.com/@qhome.staycation" target="_blank" rel="noopener" data-reveal>Xem thêm trên TikTok {ARROW}</a>
+      </div>
+      <div class="s-video-frame" data-reveal>
+        <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@qhome.staycation/video/7664579629482609940" data-video-id="7664579629482609940" style="max-width: 605px;min-width: 325px;" > <section> <a target="_blank" title="@qhome.staycation" href="https://www.tiktok.com/@qhome.staycation?refer=embed">@qhome.staycation</a> Tổng quan 5 chi nhánh của Q Home. ❤️🏡 <a title="qhomestaycation" target="_blank" href="https://www.tiktok.com/tag/qhomestaycation?refer=embed">#QHomeStaycation</a> <a title="staycationsaigon" target="_blank" href="https://www.tiktok.com/tag/staycationsaigon?refer=embed">#StaycationSaiGon</a> <a title="netflixandchill" target="_blank" href="https://www.tiktok.com/tag/netflixandchill?refer=embed">#NetflixandChill</a> <a title="hotel" target="_blank" href="https://www.tiktok.com/tag/hotel?refer=embed">#hotel</a> <a title="couple" target="_blank" href="https://www.tiktok.com/tag/couple?refer=embed">#couple</a> <a target="_blank" title="♬ âm thanh gốc  - qhome.staycation" href="https://www.tiktok.com/music/âm-thanh-gốc-qhomestaycation-7664579694815529748?refer=embed">♬ âm thanh gốc  - qhome.staycation</a> </section> </blockquote>
       </div>
     </div>
   </section>

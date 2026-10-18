@@ -15,7 +15,7 @@
   if (/(invite|recovery|confirmation|email_change)_token=/.test(location.hash)) { location.replace('/admin/' + location.hash); return; }
   const ADMIN = /[?&]admin\b/.test(location.search) && window.parent !== window;
   const TXT_SEL = 'h1,h2,h3,h4,p,li,td,th,b,small,time,label,.eyebrow,.btn,a.go,.room-no';
-  const TXT_SKIP = '.rc, #rSheet, #brPanel, #brRooms, .marquee, svg, .br-rooms-head, #lb, .cw, .mobile-menu, header.site, .curtain, .toast, .mock-badge, .soon-dots, .crumbs';
+  const TXT_SKIP = '.s-video-frame, .rc, #rSheet, #brPanel, #brRooms, .marquee, svg, .br-rooms-head, #lb, .cw, .mobile-menu, header.site, .curtain, .toast, .mock-badge, .soon-dots, .crumbs';
   const hashStr = s => { let h = 5381; s = String(s).replace(/\s+/g, ' ').trim(); for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
   const SLOTS = { img: {}, txt: {} };
   (function tagSlots(){
@@ -193,6 +193,16 @@
   /* trang chi nhánh riêng */
   if (page === 'branch') { brCur = +(document.body.dataset.branch || 0); if ($('#brRooms')) renderRooms(BR[brCur], false); }
 
+  /* ---------- nút lên đầu trang ---------- */
+  $$('[data-top]').forEach(b => b.addEventListener('click', () => { if (lenis) lenis.scrollTo(0, { duration: 1.6 }); else scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); setTimeout(() => { const f = $('.brand'); if (f) f.focus({ preventScroll: true }); }, 900); }));
+
+  /* ---------- video TikTok: chỉ tải khi sắp cuộn tới để trang nhẹ ---------- */
+  const ttEl = $('.tiktok-embed');
+  if (ttEl && !ADMIN) {
+    const loadTT = () => { if (window.__qhTT) return; window.__qhTT = 1; const sc = document.createElement('script'); sc.src = 'https://www.tiktok.com/embed.js'; sc.async = true; sc.onload = () => setTimeout(() => ttEl.closest('.s-video-frame').classList.add('loaded'), 1500); document.body.appendChild(sc); };
+    if ('IntersectionObserver' in window) { const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); loadTT(); } }, { rootMargin: '800px 0px' }); io.observe(ttEl); } else loadTT();
+  }
+
   /* ---------- trang Hỏi đáp: mở/đóng mượt, tìm nhanh, đánh dấu nhóm đang xem ---------- */
   if (page === 'faq') {
     const items = $$('.fq-item');
@@ -336,7 +346,7 @@
   const lb = $('#lb'); let lbList = [], lbIdx = 0, lbFrom = null;
   function lbShow(i){
     lbIdx = (i + lbList.length) % lbList.length; const it = lbList[lbIdx], img = $('#lbImg');
-    img.dataset.v = it.v; img.setAttribute('style', it.css || ''); $('#lbCap').textContent = it.cap; $('#lbCount').textContent = (lbIdx + 1) + ' / ' + lbList.length;
+    img.dataset.v = it.v; img.setAttribute('style', it.css || ''); $('#lbCap').textContent = it.cap || ''; $('#lbCap').hidden = !it.cap; $('#lbCount').textContent = (lbIdx + 1) + ' / ' + lbList.length;
     if (hasGsap && !reduce) gsap.fromTo(img, { scale: .96, opacity: 0 }, { scale: 1, opacity: 1, duration: .5, ease: 'power3.out' });
   }
   function openLb(list, i, from){ if (!lb) return; lbList = list; lbFrom = from || null; lbShow(i); lb.classList.add('open'); if (lenis) lenis.stop(); $('#lbClose').focus(); }
@@ -345,7 +355,7 @@
   const lbKey = e => { if (e.key === 'Escape') closeLb(); if (e.key === 'ArrowRight') lbShow(lbIdx + 1); if (e.key === 'ArrowLeft') lbShow(lbIdx - 1); };
   if (lb) {
     const items = $$('.g-item');
-    items.forEach((it, i) => it.addEventListener('click', () => openLb(items.map(x => ({ v: x.dataset.v, cap: x.dataset.cap, css: (x.querySelector('.ph') || x).getAttribute('style') || '' })), i, it)));
+    items.forEach((it, i) => it.addEventListener('click', () => openLb(items.map(x => ({ v: x.dataset.v, cap: '', css: (x.querySelector('.ph') || x).getAttribute('style') || '' })), i, it)));
     $('#lbClose').addEventListener('click', closeLb);
     $('#lbPrev').addEventListener('click', () => lbShow(lbIdx - 1));
     $('#lbNext').addEventListener('click', () => lbShow(lbIdx + 1));
