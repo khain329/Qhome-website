@@ -15,7 +15,7 @@
   if (/(invite|recovery|confirmation|email_change)_token=/.test(location.hash)) { location.replace('/admin/' + location.hash); return; }
   const ADMIN = /[?&]admin\b/.test(location.search) && window.parent !== window;
   const TXT_SEL = 'h1,h2,h3,h4,p,li,td,th,b,small,time,label,.eyebrow,.btn,a.go,.room-no';
-  const TXT_SKIP = '#brPanel, #brRooms, .marquee, svg, .br-rooms-head, #lb, .cw, .mobile-menu, header.site, .curtain, .toast, .mock-badge, .soon-dots, .crumbs';
+  const TXT_SKIP = '.rc, #rSheet, #brPanel, #brRooms, .marquee, svg, .br-rooms-head, #lb, .cw, .mobile-menu, header.site, .curtain, .toast, .mock-badge, .soon-dots, .crumbs';
   const hashStr = s => { let h = 5381; s = String(s).replace(/\s+/g, ' ').trim(); for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
   const SLOTS = { img: {}, txt: {} };
   (function tagSlots(){
@@ -192,6 +192,95 @@
   /* trang chi nhánh riêng */
   if (page === 'branch') { brCur = +(document.body.dataset.branch || 0); if ($('#brRooms')) renderRooms(BR[brCur], false); }
 
+  /* ---------- trang Phòng: carousel 5 chi nhánh + ngăn danh sách phòng ---------- */
+  const rcTrack = $('#rcTrack');
+  if (rcTrack) {
+    const slides = $$('.rc-slide', rcTrack), dots = $$('.rc-dot'); let rcCur = -1;
+    const centerOf = s => s.offsetLeft - (rcTrack.clientWidth - s.offsetWidth) / 2;
+    const nearest = () => { const mid = rcTrack.scrollLeft + rcTrack.clientWidth / 2; let best = 0, bd = Infinity; slides.forEach((s, k) => { const d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - mid); if (d < bd) { bd = d; best = k; } }); return best; };
+    const rcGo = (i, smooth = true) => { i = Math.max(0, Math.min(slides.length - 1, i)); rcTrack.scrollTo({ left: centerOf(slides[i]), behavior: smooth && !reduce ? 'smooth' : 'auto' }); setCur(i); };
+    function setCur(i){
+      if (i === rcCur) return; rcCur = i; const b = BR[i];
+      slides.forEach((s, k) => s.classList.toggle('is-active', k === i));
+      dots.forEach((d, k) => d.setAttribute('aria-current', k === i));
+      $('#rcNo').textContent = b.n; $('#rcName').textContent = b.name;
+      $('#rcPrev').disabled = i === 0; $('#rcNext').disabled = i === slides.length - 1;
+    }
+    let raf = 0; rcTrack.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => setCur(nearest())); }, { passive: true });
+    $('#rcPrev').addEventListener('click', () => rcGo(rcCur - 1));
+    $('#rcNext').addEventListener('click', () => rcGo(rcCur + 1));
+    dots.forEach((d, k) => d.addEventListener('click', () => rcGo(k)));
+    rcTrack.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); rcGo(rcCur + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); rcGo(rcCur - 1); }
+      if (e.key === 'Enter' && e.target === rcTrack) { const b = slides[rcCur].querySelector('.rc-open'); if (b) b.click(); }
+    });
+    let dragged = false;
+    slides.forEach((s, k) => s.addEventListener('click', e => {
+      if (dragged) { e.preventDefault(); e.stopPropagation(); dragged = false; return; }
+      if (k !== rcCur) { e.preventDefault(); rcGo(k); }
+      else if (!e.target.closest('.rc-open')) { const o = s.querySelector('.rc-open'); if (o) o.click(); }
+    }, true));
+    /* kéo bằng chuột trên máy tính */
+    if (finePointer) {
+      let d = null;
+      rcTrack.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('.rc-open')) return; d = { x: e.clientX, l: rcTrack.scrollLeft, moved: false }; });
+      addEventListener('pointermove', e => {
+        if (!d) return; const dx = e.clientX - d.x;
+        if (!d.moved && Math.abs(dx) > 5) { d.moved = true; rcTrack.classList.add('dragging'); }
+        if (d.moved) rcTrack.scrollLeft = d.l - dx;
+      });
+      addEventListener('pointerup', () => { if (!d) return; const moved = d.moved; d = null; if (!moved) return; dragged = true; setTimeout(() => { dragged = false; }, 60); rcTrack.classList.remove('dragging'); rcGo(nearest()); });
+    }
+    addEventListener('resize', () => rcGo(rcCur, false));
+
+    /* ngăn danh sách phòng */
+    const sheet = $('#rSheet'), panel = $('.rsheet-panel', sheet); let sheetFrom = null, sheetBr = 0;
+    const sheetIsOpen = () => sheet.classList.contains('open');
+    function openSheet(i, from){
+      const b = BR[i], rooms = b.rooms || []; sheetBr = i; sheetFrom = from || null;
+      sheet.setAttribute('style', '--brc:' + b.c + ';--bron:' + b.ink + ';--brt:' + b.t);
+      $('#rsNo').textContent = 'Chi nhánh ' + b.n + ' · ' + b.dist;
+      $('#rsName').textContent = b.name; $('#rsTag').textContent = b.tagline || '';
+      $('#rsFeat').innerHTML = (b.feat || []).map(x => '<li>' + x + '</li>').join(''); $('#rsFeat').hidden = !(b.feat || []).length;
+      $('#rsPage').href = b.slug + '.html'; $('#rsZalo').href = 'https://zalo.me/' + b.phone;
+      $('#rsRooms').innerHTML = TIERS.concat([...new Set(rooms.map(r => r.tier))].filter(t => !TIERS.includes(t))).filter(t => rooms.some(r => r.tier === t)).map(t => {
+        const list = rooms.map((r, k) => [r, k]).filter(([r]) => r.tier === t);
+        return '<div class="rgroup"><p class="rgroup-t">' + t + ' · ' + list.length + ' phòng</p><div class="rgrid">' + list.map(([r, k]) =>
+          '<button class="rtile" type="button" data-room="' + k + '" aria-label="Xem ảnh phòng ' + r.no + ', ' + r.tier + (r.m2 ? ', ' + r.m2 + ' mét vuông' : '') + '">' +
+          '<span class="ph" data-v="' + r.tv + '"></span><span class="rt-body"><b>' + r.no + '</b><small>' + (r.m2 ? r.m2 + 'm²' : r.tier) + '</small></span></button>').join('') + '</div></div>';
+      }).join('') || '<p class="br-empty">Ảnh phòng của chi nhánh này đang được cập nhật.</p>';
+      sheet.hidden = false; panel.scrollTop = 0;
+      requestAnimationFrame(() => requestAnimationFrame(() => sheet.classList.add('open')));
+      root.classList.add('sheet-open'); if (lenis) lenis.stop();
+      try { history.replaceState(null, '', '#' + b.slug); } catch (e) {}
+      setTimeout(() => $('#rsClose').focus({ preventScroll: true }), 80);
+      if (hasGsap && !reduce) gsap.from($$('.rtile', sheet), { y: 18, opacity: 0, duration: .55, stagger: .03, ease: 'power3.out', delay: .3, clearProps: 'all' });
+    }
+    function closeSheet(){
+      if (!sheetIsOpen()) return;
+      sheet.classList.remove('open'); root.classList.remove('sheet-open'); if (lenis) lenis.start();
+      setTimeout(() => { if (!sheetIsOpen()) sheet.hidden = true; }, 700);
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+      if (sheetFrom) sheetFrom.focus({ preventScroll: true });
+    }
+    $$('.rc-open[data-open]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); openSheet(+b.dataset.open, b); }));
+    $$('[data-close]', sheet).forEach(x => x.addEventListener('click', closeSheet));
+    $('#rsRooms').addEventListener('click', e => {
+      const t = e.target.closest('.rtile'); if (!t) return; const b = BR[sheetBr];
+      openLb(b.rooms.map(r => ({ v: r.pv, cap: 'Phòng ' + r.no + ' · ' + r.tier + (r.m2 ? ' · ' + r.m2 + 'm²' : '') + ' · ' + b.name })), +t.dataset.room, t);
+    });
+    sheet.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !lbOpen()) { e.stopPropagation(); closeSheet(); }
+      if (e.key === 'Tab') { const f = $$('button, a[href]', panel).filter(x => x.offsetParent); if (!f.length) return; const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); } }
+    });
+    /* mở sẵn theo địa chỉ, ví dụ phong.html#bau-cat */
+    const hb = BR.findIndex(b => '#' + b.slug === location.hash);
+    setCur(hb >= 0 ? hb : 0);
+    requestAnimationFrame(() => { rcGo(hb >= 0 ? hb : 0, false); if (hb >= 0 && !BR[hb].soon && !ADMIN) setTimeout(() => openSheet(hb, slides[hb].querySelector('.rc-open')), 400); });
+  }
+
   /* ---------- link nội trang (#...) ---------- */
   $$('a[href^="#"]').forEach(a => a.addEventListener('click', e => {
     const h = a.getAttribute('href'); if (h.length < 2) return;
@@ -210,7 +299,7 @@
     if (hasGsap && !reduce) gsap.fromTo(img, { scale: .96, opacity: 0 }, { scale: 1, opacity: 1, duration: .5, ease: 'power3.out' });
   }
   function openLb(list, i, from){ if (!lb) return; lbList = list; lbFrom = from || null; lbShow(i); lb.classList.add('open'); if (lenis) lenis.stop(); $('#lbClose').focus(); }
-  function closeLb(){ lb.classList.remove('open'); if (lenis) lenis.start(); if (lbFrom) lbFrom.focus(); }
+  function closeLb(){ lb.classList.remove('open'); if (lenis && !root.classList.contains('sheet-open')) lenis.start(); if (lbFrom) lbFrom.focus(); }
   const lbOpen = () => !!lb && lb.classList.contains('open');
   const lbKey = e => { if (e.key === 'Escape') closeLb(); if (e.key === 'ArrowRight') lbShow(lbIdx + 1); if (e.key === 'ArrowLeft') lbShow(lbIdx - 1); };
   if (lb) {
@@ -435,6 +524,15 @@
     }
     if (has('.soon-visual .arch')) tlb.fromTo('.soon-visual .arch', { clipPath: 'inset(100% 0% 0% 0% round 999px 999px 18px 18px)' }, { clipPath: 'inset(0% 0% 0% 0% round 999px 999px 18px 18px)', duration: 1.5, ease: 'power3.inOut' }, 0)
                                     .from('.soon-stamp', { scale: .4, opacity: 0, duration: .9, ease: 'back.out(1.6)' }, .9);
+  }
+
+  /* ===================== TRANG PHÒNG ===================== */
+  if (page === 'rooms') {
+    gsap.timeline({ defaults: { ease: 'power4.out' } })
+      .from('.rp-hero h1 .line > span', { yPercent: 110, duration: 1.3, stagger: .08 })
+      .from('.rp-hero [data-load]', { y: 22, opacity: 0, duration: .9, stagger: .07 }, .25)
+      .from('.rc-slide', { y: 60, opacity: 0, duration: 1.2, stagger: .08, ease: 'power3.out', clearProps: 'transform,opacity' }, .35)
+      .from('.rc-ctrl', { y: 16, opacity: 0, duration: .8 }, .8);
   }
 
   /* ===================== DÙNG CHUNG ===================== */

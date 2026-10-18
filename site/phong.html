@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Phòng · Qhome Staycation</title>
+<meta name="description" content="Xem phòng tại 5 chi nhánh Q Home: Bàu Cát, Sư Vạn Hạnh, Ba Tháng Hai, Lê Đại Hành, Thích Quảng Đức. Mỗi phòng một bảng màu riêng.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta property="og:image" content="assets/logo-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<style id="qh-img">
+.ph.ph[data-v="cv-0"]{background-image:url("assets/img/bc3.webp");background-position:50% 50%;}
+.ph.ph[data-v="cv-1"]{background-image:url("assets/img/svh.webp");background-position:50% 50%;}
+.ph.ph[data-v="cv-2"]{background-image:url("assets/img/32.webp");background-position:50% 50%;}
+.ph.ph[data-v="cv-3"]{background-image:url("assets/img/ldh.webp");background-position:50% 50%;}
+.ph.ph[data-v="cv-4"]{background-image:url("assets/img/tqd.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-0-0"]{background-image:url("assets/img/rooms/r23.webp");--ar:0.8}
+.ph.ph[data-v="rt-0-0"]{background-image:url("assets/img/thumbs/t23.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-0-1"]{background-image:url("assets/img/rooms/r24.webp");--ar:0.8}
+.ph.ph[data-v="rt-0-1"]{background-image:url("assets/img/thumbs/t24.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-0-2"]{background-image:url("assets/img/rooms/r25.webp");--ar:0.8}
+.ph.ph[data-v="rt-0-2"]{background-image:url("assets/img/thumbs/t25.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-0-3"]{background-image:url("assets/img/rooms/r26.webp");--ar:0.8}
+.ph.ph[data-v="rt-0-3"]{background-image:url("assets/img/thumbs/t26.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-0-4"]{background-image:url("assets/img/rooms/r27.webp");--ar:0.8}
+.ph.ph[data-v="rt-0-4"]{background-image:url("assets/img/thumbs/t27.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-0-5"]{background-image:url("assets/img/rooms/r28.webp");--ar:0.8}
+.ph.ph[data-v="rt-0-5"]{background-image:url("assets/img/thumbs/t28.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-0-6"]{background-image:url("assets/img/rooms/r29.webp");--ar:0.8}
+.ph.ph[data-v="rt-0-6"]{background-image:url("assets/img/thumbs/t29.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-0-7"]{background-image:url("assets/img/rooms/r30.webp");--ar:0.8}
+.ph.ph[data-v="rt-0-7"]{background-image:url("assets/img/thumbs/t30.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-0-8"]{background-image:url("assets/img/rooms/r31.webp");--ar:0.8}
+.ph.ph[data-v="rt-0-8"]{background-image:url("assets/img/thumbs/t31.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-0-9"]{background-image:url("assets/img/rooms/r32.webp");--ar:0.8}
+.ph.ph[data-v="rt-0-9"]{background-image:url("assets/img/thumbs/t32.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-1-0"]{background-image:url("assets/img/rooms/r33.webp");--ar:0.707}
+.ph.ph[data-v="rt-1-0"]{background-image:url("assets/img/thumbs/t33.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-1-1"]{background-image:url("assets/img/rooms/r34.webp");--ar:0.707}
+.ph.ph[data-v="rt-1-1"]{background-image:url("assets/img/thumbs/t34.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-1-2"]{background-image:url("assets/img/rooms/r35.webp");--ar:0.707}
+.ph.ph[data-v="rt-1-2"]{background-image:url("assets/img/thumbs/t35.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-1-3"]{background-image:url("assets/img/rooms/r36.webp");--ar:0.707}
+.ph.ph[data-v="rt-1-3"]{background-image:url("assets/img/thumbs/t36.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-1-4"]{background-image:url("assets/img/rooms/r37.webp");--ar:0.707}
+.ph.ph[data-v="rt-1-4"]{background-image:url("assets/img/thumbs/t37.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-1-5"]{background-image:url("assets/img/rooms/r38.webp");--ar:0.707}
+.ph.ph[data-v="rt-1-5"]{background-image:url("assets/img/thumbs/t38.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-1-6"]{background-image:url("assets/img/rooms/r39.webp");--ar:0.707}
+.ph.ph[data-v="rt-1-6"]{background-image:url("assets/img/thumbs/t39.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-1-7"]{background-image:url("assets/img/rooms/r40.webp");--ar:0.707}
+.ph.ph[data-v="rt-1-7"]{background-image:url("assets/img/thumbs/t40.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-2-0"]{background-image:url("assets/img/rooms/r01.webp");--ar:0.707}
+.ph.ph[data-v="rt-2-0"]{background-image:url("assets/img/thumbs/t01.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-2-1"]{background-image:url("assets/img/rooms/r02.webp");--ar:0.707}
+.ph.ph[data-v="rt-2-1"]{background-image:url("assets/img/thumbs/t02.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-2-2"]{background-image:url("assets/img/rooms/r03.webp");--ar:0.707}
+.ph.ph[data-v="rt-2-2"]{background-image:url("assets/img/thumbs/t03.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-2-3"]{background-image:url("assets/img/rooms/r04.webp");--ar:0.707}
+.ph.ph[data-v="rt-2-3"]{background-image:url("assets/img/thumbs/t04.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-2-4"]{background-image:url("assets/img/rooms/r05.webp");--ar:0.707}
+.ph.ph[data-v="rt-2-4"]{background-image:url("assets/img/thumbs/t05.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-2-5"]{background-image:url("assets/img/rooms/r06.webp");--ar:0.707}
+.ph.ph[data-v="rt-2-5"]{background-image:url("assets/img/thumbs/t06.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-2-6"]{background-image:url("assets/img/rooms/r07.webp");--ar:0.707}
+.ph.ph[data-v="rt-2-6"]{background-image:url("assets/img/thumbs/t07.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-2-7"]{background-image:url("assets/img/rooms/r08.webp");--ar:0.707}
+.ph.ph[data-v="rt-2-7"]{background-image:url("assets/img/thumbs/t08.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-2-8"]{background-image:url("assets/img/rooms/r09.webp");--ar:0.707}
+.ph.ph[data-v="rt-2-8"]{background-image:url("assets/img/thumbs/t09.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-4-0"]{background-image:url("assets/img/rooms/r10.webp");--ar:1.0}
+.ph.ph[data-v="rt-4-0"]{background-image:url("assets/img/thumbs/t10.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-4-1"]{background-image:url("assets/img/rooms/r11.webp");--ar:1.0}
+.ph.ph[data-v="rt-4-1"]{background-image:url("assets/img/thumbs/t11.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-4-2"]{background-image:url("assets/img/rooms/r12.webp");--ar:1.0}
+.ph.ph[data-v="rt-4-2"]{background-image:url("assets/img/thumbs/t12.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-4-3"]{background-image:url("assets/img/rooms/r13.webp");--ar:1.0}
+.ph.ph[data-v="rt-4-3"]{background-image:url("assets/img/thumbs/t13.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-4-4"]{background-image:url("assets/img/rooms/r14.webp");--ar:0.703}
+.ph.ph[data-v="rt-4-4"]{background-image:url("assets/img/thumbs/t14.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-4-5"]{background-image:url("assets/img/rooms/r15.webp");--ar:0.704}
+.ph.ph[data-v="rt-4-5"]{background-image:url("assets/img/thumbs/t15.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-4-6"]{background-image:url("assets/img/rooms/r16.webp");--ar:0.706}
+.ph.ph[data-v="rt-4-6"]{background-image:url("assets/img/thumbs/t16.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-4-7"]{background-image:url("assets/img/rooms/r17.webp");--ar:0.706}
+.ph.ph[data-v="rt-4-7"]{background-image:url("assets/img/thumbs/t17.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-4-8"]{background-image:url("assets/img/rooms/r18.webp");--ar:1.0}
+.ph.ph[data-v="rt-4-8"]{background-image:url("assets/img/thumbs/t18.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-4-9"]{background-image:url("assets/img/rooms/r19.webp");--ar:1.0}
+.ph.ph[data-v="rt-4-9"]{background-image:url("assets/img/thumbs/t19.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-4-10"]{background-image:url("assets/img/rooms/r20.webp");--ar:1.0}
+.ph.ph[data-v="rt-4-10"]{background-image:url("assets/img/thumbs/t20.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-4-11"]{background-image:url("assets/img/rooms/r21.webp");--ar:1.0}
+.ph.ph[data-v="rt-4-11"]{background-image:url("assets/img/thumbs/t21.webp");background-position:50% 50%;}
+.ph.ph[data-v="rp-4-12"]{background-image:url("assets/img/rooms/r22.webp");--ar:1.0}
+.ph.ph[data-v="rt-4-12"]{background-image:url("assets/img/thumbs/t22.webp");background-position:50% 50%;}
+</style>
+<script type="application/json" id="qh-content">{}</script>
+</head>
+<body data-page="rooms">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="cu" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#E6C696"/><stop offset=".5" stop-color="#D3AD7F"/><stop offset="1" stop-color="#BE9367"/></linearGradient>
+    <symbol id="qmark" viewBox="0 0 516 976"><path fill="url(#cu)" d="M355.0 975.4C321.4 972.4 291.1 960.8 264.5 940.6C259.9 937.1 225.6 903.7 183.4 861.5C143.1 821.4 109.3 787.6 108.1 786.6L105.9 784.6L53.0 837.5L0.0 890.5L0.0 867.6L0.0 844.7L64.2 780.4L128.5 716.2L223.8 811.3L319.2 906.5L323.2 902.0C333.0 891.1 346.0 867.6 349.5 854.5C350.4 851.2 351.7 846.2 352.4 843.5C356.2 829.4 356.2 828.5 355.8 478.5L355.5 137.5L352.6 126.1C344.1 91.5 328.0 66.8 300.7 46.4C287.7 36.7 274.3 29.9 256.0 24.0C236.6 17.6 229.8 16.6 209.5 16.5C190.3 16.5 180.0 18.3 161.9 24.6C137.4 33.1 120.3 43.6 104.0 59.9C85.5 78.4 74.0 99.3 67.2 126.8L64.5 137.5L64.3 437.0L64.0 736.5L32.7 767.8C15.6 784.9 1.2 799.0 0.8 799.0C0.3 799.0 0.0 655.8 0.0 480.8C0.0 203.0 0.2 161.2 1.5 152.5C6.5 119.4 19.1 90.7 39.6 65.9C45.4 59.0 50.6 54.0 63.6 43.0C80.6 28.7 116.2 12.7 143.5 7.1C180.0 -0.3 220.5 -1.6 256.0 3.6C311.6 11.7 355.3 34.7 383.9 71.0C398.2 89.1 404.1 100.5 412.6 126.9C420.1 150.3 419.5 119.1 419.5 485.5L419.5 813.5L416.8 826.1C408.3 865.2 390.8 895.7 362.7 920.1L355.9 926.0L358.7 927.1C364.2 929.2 380.1 932.9 388.7 934.1C406.9 936.5 431.6 933.5 451.0 926.5C469.7 919.7 490.3 908.0 502.4 897.2L506.2 893.8L511.1 898.6C513.8 901.3 516.0 903.9 516.0 904.5C516.0 906.6 488.2 930.0 476.0 938.1C452.7 953.6 441.4 959.4 420.5 966.5C401.7 973.0 372.3 976.9 355.0 975.4ZM94.7 863.1C88.8 857.1 84.0 851.8 84.0 851.3C84.0 850.9 89.0 845.6 95.0 839.5L106.0 828.5L117.0 839.5C123.0 845.5 128.0 850.8 128.0 851.2C128.0 852.1 106.8 874.0 106.0 874.0C105.6 874.0 100.5 869.1 94.7 863.1Z"/></symbol><symbol id="qword" viewBox="62 1038 297 150"><path fill="url(#cu)" d="M65.0 1112.9L65.0 1042.0L68.4 1042.0C72.9 1042.0 78.2 1045.8 79.7 1050.0C80.4 1052.2 80.9 1060.2 80.9 1071.2L81.0 1088.9L84.8 1088.3C94.3 1086.9 95.5 1086.4 97.8 1083.0C99.9 1079.9 100.0 1078.7 99.9 1065.6C99.9 1057.8 100.3 1050.3 100.9 1048.8C102.2 1045.3 107.5 1042.0 111.8 1042.0L115.0 1042.0L115.0 1112.8L115.0 1183.5L107.5 1183.5C103.2 1183.5 100.0 1183.1 100.0 1182.5C100.0 1182.0 100.0 1161.2 100.0 1136.3C100.0 1111.4 99.7 1090.9 99.2 1090.7C98.8 1090.4 95.4 1090.8 91.6 1091.5C80.3 1093.6 81.0 1090.2 81.0 1140.5L81.0 1183.5L73.0 1183.6L65.0 1183.7L65.0 1112.9ZM202.4 1183.1C202.2 1182.9 202.0 1151.0 202.0 1112.3L202.0 1042.0L205.0 1042.0C206.7 1042.0 209.4 1042.7 211.1 1043.5C213.7 1044.9 214.5 1044.9 218.6 1043.5C225.6 1041.1 231.8 1041.6 238.5 1044.9L244.2 1047.8L249.2 1045.2C255.1 1042.1 264.0 1041.2 269.6 1043.0C276.6 1045.3 279.9 1048.2 283.0 1054.5L286.0 1060.5L286.1 1121.5L286.1 1182.5L278.6 1182.8L271.0 1183.1L271.0 1117.2L271.0 1051.3L268.4 1048.6C264.1 1044.3 255.5 1045.5 253.1 1050.7C252.3 1052.4 252.0 1072.6 252.0 1118.0L252.0 1182.8L244.5 1183.2C238.4 1183.4 237.0 1183.2 237.0 1182.0C237.0 1181.2 236.9 1151.4 236.7 1115.8L236.5 1051.2L234.1 1048.6C231.0 1045.3 224.5 1045.0 220.9 1047.9L218.5 1049.8L218.0 1116.5L217.5 1183.2L210.2 1183.3C206.1 1183.4 202.6 1183.3 202.4 1183.1ZM147.5 1181.1C143.3 1179.2 139.2 1175.0 136.2 1169.6C134.7 1166.8 134.5 1161.4 134.2 1115.0C133.9 1059.3 134.0 1058.1 139.2 1050.9C145.6 1042.0 160.4 1039.2 171.1 1044.8C175.7 1047.2 177.0 1048.5 179.7 1053.9L183.0 1060.2L183.0 1111.8C182.9 1152.6 182.6 1164.3 181.6 1167.3C177.8 1177.9 170.3 1183.0 158.6 1183.0C153.9 1183.0 150.1 1182.3 147.5 1181.1ZM318.1 1180.4C312.3 1177.5 309.3 1173.6 306.6 1165.4C305.1 1160.7 304.9 1155.1 305.2 1110.4C305.5 1060.7 305.5 1060.5 307.8 1055.8C312.4 1046.6 318.0 1042.9 328.7 1042.2C335.1 1041.8 336.6 1042.1 341.4 1044.4C345.2 1046.3 347.7 1048.4 349.8 1051.5C354.5 1058.6 355.2 1064.5 354.8 1093.0C354.5 1117.1 354.4 1118.8 352.2 1123.5C351.0 1126.2 349.2 1129.3 348.2 1130.3C345.7 1133.1 340.1 1135.7 334.7 1136.5C330.5 1137.2 330.0 1137.0 330.0 1135.3C330.0 1133.9 331.0 1133.1 333.8 1132.4C336.8 1131.7 337.7 1130.8 338.7 1128.0C340.3 1123.4 340.5 1055.7 339.0 1051.3C337.0 1045.7 327.9 1044.0 323.5 1048.5L321.0 1050.9L321.0 1112.5L321.0 1174.1L323.5 1176.5C325.3 1178.4 327.0 1179.0 330.3 1179.0C335.8 1179.0 338.6 1176.2 339.6 1170.0C340.9 1161.5 344.6 1157.3 351.2 1156.8C354.5 1156.5 354.5 1156.5 354.3 1160.5C354.0 1165.1 352.6 1168.9 349.3 1174.2C344.0 1182.8 329.0 1185.8 318.1 1180.4ZM165.5 1176.5L168.0 1174.1L168.0 1113.5C168.0 1069.3 167.7 1052.3 166.8 1050.7C165.0 1047.3 162.8 1046.1 158.4 1046.0C155.3 1046.0 153.8 1046.6 151.9 1048.6L149.5 1051.2L149.2 1109.8C149.0 1142.1 149.2 1169.9 149.5 1171.6C150.4 1176.6 153.4 1179.0 158.6 1179.0C162.0 1179.0 163.7 1178.4 165.5 1176.5Z"/></symbol>
+    <symbol id="cam" viewBox="0 0 24 24"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.4" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 3.5h2.6l1.4 4-2 1.4a11 11 0 0 0 6.5 6.5l1.4-2 4 1.4v2.6a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M12 4c4.7 0 8.5 3.2 8.5 7.2s-3.8 7.2-8.5 7.2c-1 0-2-.1-2.9-.4L5 19.8l1.1-3.4C4.5 15.1 3.5 13.2 3.5 11.2 3.5 7.2 7.3 4 12 4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="8.6" cy="11.3" r="1" fill="currentColor"/><circle cx="12" cy="11.3" r="1" fill="currentColor"/><circle cx="15.4" cy="11.3" r="1" fill="currentColor"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<div class="mock-badge">Mockup · ảnh &amp; giá tạm</div>
+
+<header class="site" id="top">
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="Q Home – trang chủ">
+      <span class="brand-mark"><svg><use href="#qmark"/></svg></span>
+      <span class="brand-name">Q Home<small>Một trải nghiệm</small></span>
+    </a>
+    <nav class="nav-links" aria-label="Điều hướng chính">
+      <a href="cau-chuyen.html">Câu chuyện</a>
+      <a href="phong.html" aria-current="page">Phòng</a>
+      <a href="index.html#khoanh-khac">Khoảnh khắc</a>
+      <a href="index.html#tien-nghi">Tiện nghi</a>
+      <div class="has-dd" id="dd">
+        <button class="dd-toggle" id="ddToggle" type="button" aria-expanded="false" aria-controls="ddPanel">Chi nhánh <svg><use href="#chev"/></svg></button>
+        <div class="dd" id="ddPanel">
+          <ul class="dd-list"><li><a class="dd-item" href="bau-cat.html"><span class="n">01</span><span><b><i class="dot" style="--d:#C8930E"></i>Bàu Cát</b><small>Quận Tân Bình</small></span><svg class="go"><use href="#arrow"/></svg></a></li><li><a class="dd-item" href="su-van-hanh.html"><span class="n">02</span><span><b><i class="dot" style="--d:#112E50"></i>Sư Vạn Hạnh</b><small>Quận 10</small></span><svg class="go"><use href="#arrow"/></svg></a></li><li><a class="dd-item" href="ba-thang-hai.html"><span class="n">03</span><span><b><i class="dot" style="--d:#0C3120"></i>Ba Tháng Hai</b><small>Quận 10</small></span><svg class="go"><use href="#arrow"/></svg></a></li><li><a class="dd-item" href="le-dai-hanh.html"><span class="n">04</span><span><b><i class="dot" style="--d:#6A3C00"></i>Lê Đại Hành</b><small>Quận 11</small></span><svg class="go"><use href="#arrow"/></svg></a></li><li><a class="dd-item" href="thich-quang-duc.html"><span class="n">05</span><span><b><i class="dot" style="--d:#70240D"></i>Thích Quảng Đức</b><small>Quận Phú Nhuận</small></span><svg class="go"><use href="#arrow"/></svg></a></li></ul>
+          <div class="dd-preview" id="ddPrev" style="--brc:#C8930E"><div class="ph" data-v="cv-0" id="ddPh"></div><span class="dd-cap" id="ddCap">5 chi nhánh</span></div>
+        </div>
+      </div>
+      <a class="btn btn-solid magnetic" href="index.html#lien-he">Liên hệ</a>
+    </nav>
+    <button class="burger" id="burger" aria-label="Mở menu" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+  <nav aria-label="Menu di động">
+    <a href="cau-chuyen.html">Câu chuyện</a>
+    <a href="phong.html" aria-current="page">Phòng</a>
+    <a href="index.html#khoanh-khac">Khoảnh khắc</a>
+    <a href="index.html#tien-nghi">Tiện nghi</a>
+    <button class="mm-acc" id="mmAcc" type="button" aria-expanded="false" aria-controls="mmSub">Chi nhánh <svg><use href="#chev"/></svg></button>
+    <div class="mm-sub" id="mmSub" hidden><a href="bau-cat.html"><span>01</span>Bàu Cát<small>Quận Tân Bình</small></a><a href="su-van-hanh.html"><span>02</span>Sư Vạn Hạnh<small>Quận 10</small></a><a href="ba-thang-hai.html"><span>03</span>Ba Tháng Hai<small>Quận 10</small></a><a href="le-dai-hanh.html"><span>04</span>Lê Đại Hành<small>Quận 11</small></a><a href="thich-quang-duc.html"><span>05</span>Thích Quảng Đức<small>Quận Phú Nhuận</small></a></div>
+    <a href="index.html#lien-he"><em>Liên hệ</em></a>
+  </nav>
+  <div class="mm-foot"><span>5 chi nhánh · Mở cửa 24/7</span><span>Hotline riêng từng chi nhánh ở mục Liên hệ</span></div>
+</div>
+
+<main class="rp">
+  <section class="rp-hero">
+    <div class="wrap rp-hero-in">
+      <nav class="crumbs" aria-label="Vị trí trang" data-load><a href="index.html">Trang chủ</a><span aria-hidden="true">/</span><span aria-current="page">Phòng</span></nav>
+      <p class="eyebrow" data-load>Phòng · 5 ngôi nhà</p>
+      <div class="rp-hero-row">
+      <h1 class="display"><span class="line"><span>Mỗi cánh cửa,</span></span><span class="line"><span><span class="ital">một căn phòng.</span></span></span></h1>
+      <p class="lede" data-load>Năm ngôi nhà, hơn 40 căn phòng, mỗi căn một bảng màu riêng. Lướt qua từng chi nhánh, chọn một cánh cửa rồi bước vào xem.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="rc" aria-roledescription="carousel" aria-label="5 chi nhánh Qhome">
+    <div class="rc-track" id="rcTrack" tabindex="0" aria-label="Kéo hoặc dùng phím mũi tên để xem chi nhánh khác">
+        <article class="rc-slide" style="--brc:#C8930E;--bron:#FFFFFF;--brt:#C8930E" role="group" aria-roledescription="slide" aria-label="1 / 5: Bàu Cát">
+          <div class="rc-media"><div class="ph" data-v="cv-0" role="img" aria-label="Phòng tại chi nhánh Bàu Cát"></div></div>
+          
+          <div class="rc-info">
+            <span class="rc-n">01</span>
+            <p class="rc-dist">Quận Tân Bình</p>
+            <h2 class="rc-name">Bàu Cát</h2>
+            <p class="rc-tag">Sáng, sạch và đầy màu</p>
+            <p class="rc-count">10 phòng · Deluxe, Premium</p>
+          </div>
+          <button class="rc-open" type="button" data-open="0" aria-haspopup="dialog">Mở cửa bước vào <svg><use href="#arrow"/></svg></button>
+        </article><article class="rc-slide" style="--brc:#112E50;--bron:#FFFFFF;--brt:#112E50" role="group" aria-roledescription="slide" aria-label="2 / 5: Sư Vạn Hạnh">
+          <div class="rc-media"><div class="ph" data-v="cv-1" role="img" aria-label="Phòng tại chi nhánh Sư Vạn Hạnh"></div></div>
+          
+          <div class="rc-info">
+            <span class="rc-n">02</span>
+            <p class="rc-dist">Quận 10</p>
+            <h2 class="rc-name">Sư Vạn Hạnh</h2>
+            <p class="rc-tag">Rộng rãi, tối giản, có bồn tắm</p>
+            <p class="rc-count">8 phòng · Deluxe, Premium, Suite</p>
+          </div>
+          <button class="rc-open" type="button" data-open="1" aria-haspopup="dialog">Mở cửa bước vào <svg><use href="#arrow"/></svg></button>
+        </article><article class="rc-slide" style="--brc:#0C3120;--bron:#FFFFFF;--brt:#0C3120" role="group" aria-roledescription="slide" aria-label="3 / 5: Ba Tháng Hai">
+          <div class="rc-media"><div class="ph" data-v="cv-2" role="img" aria-label="Phòng tại chi nhánh Ba Tháng Hai"></div></div>
+          
+          <div class="rc-info">
+            <span class="rc-n">03</span>
+            <p class="rc-dist">Quận 10</p>
+            <h2 class="rc-name">Ba Tháng Hai</h2>
+            <p class="rc-tag">Một khu vườn trong phòng</p>
+            <p class="rc-count">9 phòng · Standard, Deluxe, Premium, Suite</p>
+          </div>
+          <button class="rc-open" type="button" data-open="2" aria-haspopup="dialog">Mở cửa bước vào <svg><use href="#arrow"/></svg></button>
+        </article><article class="rc-slide" style="--brc:#6A3C00;--bron:#FFFFFF;--brt:#6A3C00" role="group" aria-roledescription="slide" aria-label="4 / 5: Lê Đại Hành">
+          <div class="rc-media"><div class="ph" data-v="cv-3" role="img" aria-label="Phòng tại chi nhánh Lê Đại Hành"></div></div>
+          <span class="rc-soon">Sắp mở cửa</span>
+          <div class="rc-info">
+            <span class="rc-n">04</span>
+            <p class="rc-dist">Quận 11</p>
+            <h2 class="rc-name">Lê Đại Hành</h2>
+            <p class="rc-tag">Ấm như phòng khách nhà mình</p>
+            <p class="rc-count">Đang hoàn thiện</p>
+          </div>
+          <a class="rc-open" href="le-dai-hanh.html">Ghé xem trước <svg><use href="#arrow"/></svg></a>
+        </article><article class="rc-slide" style="--brc:#70240D;--bron:#FFFFFF;--brt:#70240D" role="group" aria-roledescription="slide" aria-label="5 / 5: Thích Quảng Đức">
+          <div class="rc-media"><div class="ph" data-v="cv-4" role="img" aria-label="Phòng tại chi nhánh Thích Quảng Đức"></div></div>
+          
+          <div class="rc-info">
+            <span class="rc-n">05</span>
+            <p class="rc-dist">Quận Phú Nhuận</p>
+            <h2 class="rc-name">Thích Quảng Đức</h2>
+            <p class="rc-tag">Mỗi phòng một sắc màu</p>
+            <p class="rc-count">13 phòng · Standard, Deluxe, Premium</p>
+          </div>
+          <button class="rc-open" type="button" data-open="4" aria-haspopup="dialog">Mở cửa bước vào <svg><use href="#arrow"/></svg></button>
+        </article>
+    </div>
+    <div class="wrap rc-ctrl">
+      <p class="rc-now" aria-live="polite"><b id="rcNo">01</b><span>/ 05</span><em id="rcName">Bàu Cát</em></p>
+      <div class="rc-dots" role="group" aria-label="Chọn chi nhánh"><button class="rc-dot" type="button" style="--brc:#C8930E" aria-label="Bàu Cát"><i></i><span>Bàu Cát</span></button><button class="rc-dot" type="button" style="--brc:#112E50" aria-label="Sư Vạn Hạnh"><i></i><span>Sư Vạn Hạnh</span></button><button class="rc-dot" type="button" style="--brc:#0C3120" aria-label="Ba Tháng Hai"><i></i><span>Ba Tháng Hai</span></button><button class="rc-dot" type="button" style="--brc:#6A3C00" aria-label="Lê Đại Hành"><i></i><span>Lê Đại Hành</span></button><button class="rc-dot" type="button" style="--brc:#70240D" aria-label="Thích Quảng Đức"><i></i><span>Thích Quảng Đức</span></button></div>
+      <div class="rc-arrows"><button class="rc-arrow" id="rcPrev" type="button" aria-label="Chi nhánh trước"><svg><use href="#arrow"/></svg></button><button class="rc-arrow" id="rcNext" type="button" aria-label="Chi nhánh sau"><svg><use href="#arrow"/></svg></button></div>
+    </div>
+  </section>
+
+  <section class="section rp-outro">
+    <div class="wrap rp-outro-in" data-reveal>
+      <p class="display">Ưng căn nào, <em>nhắn chi nhánh đó nhé.</em></p>
+      <p class="lede">Giá và phòng trống thay đổi theo giờ, nên mỗi chi nhánh sẽ báo bạn chính xác nhất qua Messenger, Zalo hoặc điện thoại.</p>
+      <a class="btn btn-solid magnetic" href="index.html#lien-he">Liên hệ đặt phòng <svg><use href="#arrow"/></svg></a>
+    </div>
+  </section>
+</main>
+
+<div class="rsheet" id="rSheet" role="dialog" aria-modal="true" aria-labelledby="rsName" hidden>
+  <div class="rsheet-bg" data-close></div>
+  <div class="rsheet-panel" data-lenis-prevent>
+    <div class="rs-head">
+      <div class="rs-title">
+        <p class="eyebrow" id="rsNo"></p>
+        <h2 class="display" id="rsName"></h2>
+        <p class="rs-tag" id="rsTag"></p>
+      </div>
+      <button class="rs-close" id="rsClose" type="button" aria-label="Đóng danh sách phòng" data-close><svg><use href="#i-close"/></svg></button>
+    </div>
+    <ul class="pfeat rs-feat" id="rsFeat" aria-label="Tiện ích"></ul>
+    <p class="rs-hint">Bấm vào phòng để xem ảnh, dùng mũi tên để xem phòng kế tiếp.</p>
+    <div class="rs-rooms" id="rsRooms"></div>
+    <div class="rs-foot"><a class="btn btn-line" id="rsPage" href="#">Xem trang chi nhánh <svg><use href="#arrow"/></svg></a><a class="btn btn-solid" id="rsZalo" href="#" target="_blank" rel="noopener">Nhắn Zalo chi nhánh</a></div>
+  </div>
+</div>
+
+<footer class="on-dark">
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <a class="brand" href="index.html"><span class="brand-mark"><svg><use href="#qmark"/></svg></span><span class="brand-name">Q Home<small>Một trải nghiệm</small></span></a>
+        <p style="margin-top:18px;max-width:36ch">Staycation ấm cúng với 5 chi nhánh. Mở cửa 24/7.</p>
+        <p style="margin-top:14px"><a href="cau-chuyen.html">Câu chuyện Qhome</a></p>
+      </div>
+      <div>
+        <h4>Chi nhánh</h4>
+        <a href="bau-cat.html"><i class="dot" style="--d:#C8930E"></i>Bàu Cát</a><a href="su-van-hanh.html"><i class="dot" style="--d:#112E50"></i>Sư Vạn Hạnh</a><a href="ba-thang-hai.html"><i class="dot" style="--d:#0C3120"></i>Ba Tháng Hai</a><a href="le-dai-hanh.html"><i class="dot" style="--d:#6A3C00"></i>Lê Đại Hành</a><a href="thich-quang-duc.html"><i class="dot" style="--d:#70240D"></i>Thích Quảng Đức</a>
+        <p style="margin-top:12px;word-break:break-all">qhome.mottrainghiem@gmail.com</p>
+      </div>
+      <div>
+        <h4>Theo dõi</h4>
+        <a href="https://www.facebook.com/qhome.staycation" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.instagram.com/qhome.staycation/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.tiktok.com/@qhome.staycation" target="_blank" rel="noopener">TikTok</a>
+      </div>
+    </div>
+    <div class="foot-bottom"><span>© <span id="yr">2026</span> Q Home – Một Trải Nghiệm</span><a class="replay" href="index.html">Về trang chủ</a></div>
+  </div>
+</footer>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Xem ảnh">
+  <div class="lb-top"><span id="lbCount">1 / 7</span><button class="lb-btn" id="lbClose" aria-label="Đóng"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>
+  <div class="lb-stage" id="lbStage"><div class="ph" id="lbImg"></div></div>
+  <div>
+    <p class="lb-cap" id="lbCap"></p>
+    <div class="lb-nav">
+      <button class="lb-btn" id="lbPrev" aria-label="Ảnh trước"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button>
+      <button class="lb-btn" id="lbNext" aria-label="Ảnh sau"><svg><use href="#arrow"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<div class="cw" id="cw">
+  <div class="cw-panel" id="cwCall" role="dialog" aria-labelledby="cwCallT" hidden>
+    <div class="cw-head"><div><p class="cw-eyebrow">Gọi đặt phòng</p><p class="cw-title" id="cwCallT">Chọn chi nhánh để gọi</p></div><button class="cw-x" type="button" data-cw-close aria-label="Đóng"><svg><use href="#i-close"/></svg></button></div>
+    <ul class="cw-list"><li><a class="cw-row" href="tel:0795509579"><span class="cw-ic" style="--d:#C8930E"><svg><use href="#i-phone"/></svg></span><span class="cw-t"><b>Bàu Cát</b><small>Quận Tân Bình</small></span><span class="cw-num">0795 509 579</span></a></li><li><a class="cw-row" href="tel:0797568685"><span class="cw-ic" style="--d:#112E50"><svg><use href="#i-phone"/></svg></span><span class="cw-t"><b>Sư Vạn Hạnh</b><small>Quận 10</small></span><span class="cw-num">0797 568 685</span></a></li><li><a class="cw-row" href="tel:0797577567"><span class="cw-ic" style="--d:#0C3120"><svg><use href="#i-phone"/></svg></span><span class="cw-t"><b>Ba Tháng Hai</b><small>Quận 10</small></span><span class="cw-num">0797 577 567</span></a></li><li><a class="cw-row" href="tel:0798539395"><span class="cw-ic" style="--d:#6A3C00"><svg><use href="#i-phone"/></svg></span><span class="cw-t"><b>Lê Đại Hành</b><small>Quận 11</small></span><span class="cw-num">0798 539 395</span></a></li><li><a class="cw-row" href="tel:0797257357"><span class="cw-ic" style="--d:#70240D"><svg><use href="#i-phone"/></svg></span><span class="cw-t"><b>Thích Quảng Đức</b><small>Quận Phú Nhuận</small></span><span class="cw-num">0797 257 357</span></a></li></ul>
+    <p class="cw-foot">Mở cửa 24/7 · bấm vào chi nhánh để gọi</p>
+  </div>
+  <div class="cw-panel" id="cwChat" role="dialog" aria-labelledby="cwChatT" hidden>
+    <div class="cw-head"><div><p class="cw-eyebrow">Nhắn tin</p><p class="cw-title" id="cwChatT">Nhắn cho chi nhánh nào?</p></div><button class="cw-x" type="button" data-cw-close aria-label="Đóng"><svg><use href="#i-close"/></svg></button></div>
+    <a class="cw-mess" href="https://m.me/qhome.staycation" target="_blank" rel="noopener"><span class="cw-ic cw-ic-mess"><svg><use href="#i-chat"/></svg></span><span class="cw-t"><b>Messenger fanpage</b><small>Fanpage chung của Qhome</small></span><svg class="cw-go"><use href="#arrow"/></svg></a>
+    <ul class="cw-list"><li><a class="cw-row" href="https://zalo.me/0795509579" target="_blank" rel="noopener"><span class="cw-ic" style="--d:#C8930E"><svg><use href="#i-chat"/></svg></span><span class="cw-t"><b>Bàu Cát</b><small>Zalo · 0795 509 579</small></span><svg class="cw-go"><use href="#arrow"/></svg></a></li><li><a class="cw-row" href="https://zalo.me/0797568685" target="_blank" rel="noopener"><span class="cw-ic" style="--d:#112E50"><svg><use href="#i-chat"/></svg></span><span class="cw-t"><b>Sư Vạn Hạnh</b><small>Zalo · 0797 568 685</small></span><svg class="cw-go"><use href="#arrow"/></svg></a></li><li><a class="cw-row" href="https://zalo.me/0797577567" target="_blank" rel="noopener"><span class="cw-ic" style="--d:#0C3120"><svg><use href="#i-chat"/></svg></span><span class="cw-t"><b>Ba Tháng Hai</b><small>Zalo · 0797 577 567</small></span><svg class="cw-go"><use href="#arrow"/></svg></a></li><li><a class="cw-row" href="https://zalo.me/0798539395" target="_blank" rel="noopener"><span class="cw-ic" style="--d:#6A3C00"><svg><use href="#i-chat"/></svg></span><span class="cw-t"><b>Lê Đại Hành</b><small>Zalo · 0798 539 395</small></span><svg class="cw-go"><use href="#arrow"/></svg></a></li><li><a class="cw-row" href="https://zalo.me/0797257357" target="_blank" rel="noopener"><span class="cw-ic" style="--d:#70240D"><svg><use href="#i-chat"/></svg></span><span class="cw-t"><b>Thích Quảng Đức</b><small>Zalo · 0797 257 357</small></span><svg class="cw-go"><use href="#arrow"/></svg></a></li></ul>
+  </div>
+  <div class="cw-btns">
+    <button class="cw-btn cw-btn-chat" type="button" id="cwChatBtn" aria-expanded="false" aria-controls="cwChat"><svg class="ic"><use href="#i-chat"/></svg><svg class="x"><use href="#i-close"/></svg><span class="cw-tip">Nhắn tin</span></button>
+    <button class="cw-btn cw-btn-call" type="button" id="cwCallBtn" aria-expanded="false" aria-controls="cwCall"><svg class="ic"><use href="#i-phone"/></svg><svg class="x"><use href="#i-close"/></svg><span class="cw-tip">Gọi chi nhánh</span></button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="assets/main.js"></script>
+</body>
+</html>

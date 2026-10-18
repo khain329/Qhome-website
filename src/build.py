@@ -45,12 +45,13 @@ def links(page):
     return dict(
         brand='#top' if home else HOME_URL,
         story='cau-chuyen.html',
-        rooms=f'{h}#phong', moments=f'{h}#khoanh-khac', amen=f'{h}#tien-nghi', contact=f'{h}#lien-he', branches=f'{h}#chi-nhanh',
+        rooms='phong.html', moments=f'{h}#khoanh-khac', amen=f'{h}#tien-nghi', contact=f'{h}#lien-he', branches=f'{h}#chi-nhanh',
         cn=lambda i: f'{B[i]["slug"]}.html')
 
 def header(page, bi=None):
     L = links(page)
     cur = ' aria-current="page"' if page == 'story' else ''
+    rcur = ' aria-current="page"' if page == 'rooms' else ''
     ac = lambda i: ' aria-current="page"' if bi == i else ''
     dd_items = ''.join(f'<li><a class="dd-item" href="{L["cn"](i)}"{ac(i)}><span class="n">{b["n"]}</span><span><b>{dot(b)}{esc(b["name"])}</b><small>{esc(b["dist"])}</small></span><svg class="go"><use href="#arrow"/></svg></a></li>' for i, b in enumerate(B))
     return f'''<header class="site" id="top">
@@ -61,7 +62,7 @@ def header(page, bi=None):
     </a>
     <nav class="nav-links" aria-label="Điều hướng chính">
       <a href="{L["story"]}"{cur}>Câu chuyện</a>
-      <a href="{L["rooms"]}">Phòng</a>
+      <a href="{L["rooms"]}"{rcur}>Phòng</a>
       <a href="{L["moments"]}">Khoảnh khắc</a>
       <a href="{L["amen"]}">Tiện nghi</a>
       <div class="has-dd" id="dd">
@@ -81,11 +82,12 @@ def header(page, bi=None):
 def mobile_menu(page, bi=None):
     L = links(page)
     cur = ' aria-current="page"' if page == 'story' else ''
+    rcur = ' aria-current="page"' if page == 'rooms' else ''
     items = ''.join(f'<a href="{L["cn"](i)}"{" aria-current=\"page\"" if bi == i else ""}><span>{b["n"]}</span>{b["name"]}<small>{b["dist"]}</small></a>' for i, b in enumerate(B))
     return f'''<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
   <nav aria-label="Menu di động">
     <a href="{L["story"]}"{cur}>Câu chuyện</a>
-    <a href="{L["rooms"]}">Phòng</a>
+    <a href="{L["rooms"]}"{rcur}>Phòng</a>
     <a href="{L["moments"]}">Khoảnh khắc</a>
     <a href="{L["amen"]}">Tiện nghi</a>
     <button class="mm-acc" id="mmAcc" type="button" aria-expanded="false" aria-controls="mmSub">Chi nhánh <svg><use href="#chev"/></svg></button>
@@ -195,6 +197,8 @@ def home_main():
     anchor = '<ul class="pnotes" id="brNotes">'
     i = m.index(anchor); j = m.index('</div>', m.index('</ul>', i)) + len('</div>')
     m = m[:j] + rooms_html + m[j:]
+    # nút dẫn sang trang Phòng từ mục Hạng phòng
+    m = re.sub(r'(<section class="rooms on-dark" id="phong">.*?<div class="wrap rooms-head">.*?)<p data-reveal>(.*?)</p>', lambda mo: mo.group(1) + f'<div class="rooms-head-side" data-reveal><p>{mo.group(2)}</p><a class="btn btn-line magnetic rooms-all" href="phong.html">Xem phòng từng chi nhánh {ARROW}</a></div>', m, count=1, flags=re.S)
     # nút dẫn sang trang Câu chuyện
     i = m.index('<div class="facts" data-reveal>'); j = i
     for _ in range(4): j = m.index('</div>', j) + len('</div>')
@@ -506,24 +510,104 @@ def page_branch(bi):
     desc = f'Q Home {b["name"]}, {b["addr"]}. Hotline {b["phoneTxt"]}. Mở cửa 24/7.' + (f' {len(b["rooms"])} phòng, bảng giá và ảnh từng phòng.' if not b['soon'] else ' Trang đang được hoàn thiện.')
     return head(title, desc, b['slug'], bi) + body
 
+# ---------------- rooms page ----------------
+OPEN_LABEL = 'Mở cửa bước vào'
+def rooms_main():
+    total = sum(len(b['rooms']) for b in B)
+    slides = []
+    for i, b in enumerate(B):
+        tiers = [t for t in TIERS if any(r['tier'] == t for r in b['rooms'])]
+        cnt = f'{len(b["rooms"])} phòng · {", ".join(tiers)}' if not b['soon'] else 'Đang hoàn thiện'
+        btn = (f'<a class="rc-open" href="{b["slug"]}.html">Ghé xem trước {ARROW}</a>' if b['soon'] else
+               f'<button class="rc-open" type="button" data-open="{i}" aria-haspopup="dialog">{OPEN_LABEL} {ARROW}</button>')
+        soon = '<span class="rc-soon">Sắp mở cửa</span>' if b['soon'] else ''
+        slides.append(f"""<article class="rc-slide" style="{bvars(b)}" role="group" aria-roledescription="slide" aria-label="{i+1} / {len(B)}: {esc(b['name'])}">
+          <div class="rc-media"><div class="ph" data-v="{b['v']}" role="img" aria-label="Phòng tại chi nhánh {esc(b['name'])}"></div></div>
+          {soon}
+          <div class="rc-info">
+            <span class="rc-n">{b['n']}</span>
+            <p class="rc-dist">{esc(b['dist'])}</p>
+            <h2 class="rc-name">{esc(b['name'])}</h2>
+            <p class="rc-tag">{esc(b['tagline'])}</p>
+            <p class="rc-count">{cnt}</p>
+          </div>
+          {btn}
+        </article>""")
+    dots = ''.join(f'<button class="rc-dot" type="button" style="--brc:{b["c"]}" aria-label="{esc(b["name"])}"><i></i><span>{esc(b["name"])}</span></button>' for b in B)
+    return f"""<main class="rp">
+  <section class="rp-hero">
+    <div class="wrap rp-hero-in">
+      <nav class="crumbs" aria-label="Vị trí trang" data-load><a href="{HOME_URL}">Trang chủ</a><span aria-hidden="true">/</span><span aria-current="page">Phòng</span></nav>
+      <p class="eyebrow" data-load>Phòng · {len(B)} ngôi nhà</p>
+      <div class="rp-hero-row">
+      <h1 class="display"><span class="line"><span>Mỗi cánh cửa,</span></span><span class="line"><span><span class="ital">một căn phòng.</span></span></span></h1>
+      <p class="lede" data-load>Năm ngôi nhà, hơn {total // 10 * 10} căn phòng, mỗi căn một bảng màu riêng. Lướt qua từng chi nhánh, chọn một cánh cửa rồi bước vào xem.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="rc" aria-roledescription="carousel" aria-label="{len(B)} chi nhánh Qhome">
+    <div class="rc-track" id="rcTrack" tabindex="0" aria-label="Kéo hoặc dùng phím mũi tên để xem chi nhánh khác">
+        {''.join(slides)}
+    </div>
+    <div class="wrap rc-ctrl">
+      <p class="rc-now" aria-live="polite"><b id="rcNo">01</b><span>/ {len(B):02d}</span><em id="rcName">{esc(B[0]['name'])}</em></p>
+      <div class="rc-dots" role="group" aria-label="Chọn chi nhánh">{dots}</div>
+      <div class="rc-arrows"><button class="rc-arrow" id="rcPrev" type="button" aria-label="Chi nhánh trước"><svg><use href="#arrow"/></svg></button><button class="rc-arrow" id="rcNext" type="button" aria-label="Chi nhánh sau"><svg><use href="#arrow"/></svg></button></div>
+    </div>
+  </section>
+
+  <section class="section rp-outro">
+    <div class="wrap rp-outro-in" data-reveal>
+      <p class="display">Ưng căn nào, <em>nhắn chi nhánh đó nhé.</em></p>
+      <p class="lede">Giá và phòng trống thay đổi theo giờ, nên mỗi chi nhánh sẽ báo bạn chính xác nhất qua Messenger, Zalo hoặc điện thoại.</p>
+      <a class="btn btn-solid magnetic" href="{HOME_URL}#lien-he">Liên hệ đặt phòng {ARROW}</a>
+    </div>
+  </section>
+</main>
+
+<div class="rsheet" id="rSheet" role="dialog" aria-modal="true" aria-labelledby="rsName" hidden>
+  <div class="rsheet-bg" data-close></div>
+  <div class="rsheet-panel" data-lenis-prevent>
+    <div class="rs-head">
+      <div class="rs-title">
+        <p class="eyebrow" id="rsNo"></p>
+        <h2 class="display" id="rsName"></h2>
+        <p class="rs-tag" id="rsTag"></p>
+      </div>
+      <button class="rs-close" id="rsClose" type="button" aria-label="Đóng danh sách phòng" data-close><svg><use href="#i-close"/></svg></button>
+    </div>
+    <ul class="pfeat rs-feat" id="rsFeat" aria-label="Tiện ích"></ul>
+    <p class="rs-hint">Bấm vào phòng để xem ảnh, dùng mũi tên để xem phòng kế tiếp.</p>
+    <div class="rs-rooms" id="rsRooms"></div>
+    <div class="rs-foot"><a class="btn btn-line" id="rsPage" href="#">Xem trang chi nhánh {ARROW}</a><a class="btn btn-solid" id="rsZalo" href="#" target="_blank" rel="noopener">Nhắn Zalo chi nhánh</a></div>
+  </div>
+</div>"""
+
+def page_rooms():
+    body = (f'<body data-page="rooms">\n{P["defs"]}\n\n{P["badge"]}\n\n{header("rooms")}\n{mobile_menu("rooms")}\n'
+            f'{rooms_main()}\n\n{footer("rooms")}\n{P["lightbox"]}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
+    return head('Phòng · Qhome Staycation', 'Xem phòng tại 5 chi nhánh Q Home: Bàu Cát, Sư Vạn Hạnh, Ba Tháng Hai, Lê Đại Hành, Thích Quảng Đức. Mỗi phòng một bảng màu riêng.', 'rooms', None) + body
+
 # ---------------- write ----------------
 os.makedirs(f'{ROOT}/site/assets/img', exist_ok=True)
-css = open(f'{ROOT}/src/base.css', encoding='utf-8').read() + open(f'{ROOT}/src/story.css', encoding='utf-8').read() + open(f'{ROOT}/src/rooms.css', encoding='utf-8').read() + open(f'{ROOT}/src/branch.css', encoding='utf-8').read() + open(f'{ROOT}/src/admin_bridge.css', encoding='utf-8').read()
+css = open(f'{ROOT}/src/base.css', encoding='utf-8').read() + open(f'{ROOT}/src/story.css', encoding='utf-8').read() + open(f'{ROOT}/src/rooms.css', encoding='utf-8').read() + open(f'{ROOT}/src/branch.css', encoding='utf-8').read() + open(f'{ROOT}/src/roomspage.css', encoding='utf-8').read() + open(f'{ROOT}/src/admin_bridge.css', encoding='utf-8').read()
 open(f'{ROOT}/site/assets/style.css', 'w', encoding='utf-8').write(css)
 js = open(f'{ROOT}/src/main.js', encoding='utf-8').read().replace('/*__BRANCHES__*/[]', json.dumps(CT.js_data(B), ensure_ascii=False))
 open(f'{ROOT}/site/assets/main.js', 'w', encoding='utf-8').write(js)
-home = page_home(); story = page_story()
+home = page_home(); story = page_story(); rooms = page_rooms()
 open(f'{ROOT}/site/index.html', 'w', encoding='utf-8').write(home)
 open(f'{ROOT}/site/cau-chuyen.html', 'w', encoding='utf-8').write(story)
+open(f'{ROOT}/site/phong.html', 'w', encoding='utf-8').write(rooms)
 branch_pages = [(b['slug'] + '.html', page_branch(i), None) for i, b in enumerate(B)]
 # nội dung hiệu lực cho trang quản trị + danh sách trang
 os.makedirs(f'{ROOT}/site/admin', exist_ok=True)
 json.dump(C, open(f'{ROOT}/site/admin/content.json', 'w', encoding='utf-8'), ensure_ascii=False)
-json.dump([{'key': 'home', 'file': 'index.html', 'name': 'Trang chủ'}, {'key': 'story', 'file': 'cau-chuyen.html', 'name': 'Câu chuyện'}] +
+json.dump([{'key': 'home', 'file': 'index.html', 'name': 'Trang chủ'}, {'key': 'story', 'file': 'cau-chuyen.html', 'name': 'Câu chuyện'}, {'key': 'rooms', 'file': 'phong.html', 'name': 'Phòng'}] +
           [{'key': b['slug'], 'file': b['slug'] + '.html', 'name': b['name'], 'branch': i} for i, b in enumerate(B)],
           open(f'{ROOT}/site/admin/pages.json', 'w', encoding='utf-8'), ensure_ascii=False)
 # xoá trang chi nhánh cũ không còn dùng
-keep = {'index.html', 'cau-chuyen.html'} | {n for n, _, _ in branch_pages}
+keep = {'index.html', 'cau-chuyen.html', 'phong.html'} | {n for n, _, _ in branch_pages}
 for f in os.listdir(f'{ROOT}/site'):
     if f.endswith('.html') and f not in keep: os.remove(f'{ROOT}/site/{f}')
 for name, html, _ in branch_pages: open(f'{ROOT}/site/{name}', 'w', encoding='utf-8').write(html)
@@ -552,6 +636,6 @@ def inline(html, keep):
     assert 'assets/style.css' not in html and 'assets/main.js' not in html
     return html
 os.makedirs(f'{ROOT}/export', exist_ok=True)
-for name, html, keep in ([] if IS_NETLIFY else [('index.html', home, None), ('cau-chuyen.html', story, None)] + branch_pages):
+for name, html, keep in ([] if IS_NETLIFY else [('index.html', home, None), ('cau-chuyen.html', story, None), ('phong.html', rooms, None)] + branch_pages):
     open(f'{ROOT}/export/{name}', 'w', encoding='utf-8').write(inline(html, keep))
 print('standalone ok')
