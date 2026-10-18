@@ -1,8 +1,8 @@
 node_modules/
 .netlify/
-export/
-raw/
-img/
+/export/
+/raw/
+/img/
 /index.html
 src/content.json
 src/*_a.js
