@@ -32,7 +32,7 @@ svg{width:18px;height:18px;flex:none}
 .icon:hover{background:var(--bg);color:var(--ink)}
 .link{color:var(--wood);font-weight:600;font-size:13px;padding:4px 0;text-decoration:underline;text-underline-offset:3px}
 .mark{width:34px;height:34px;border-radius:50%;background:var(--wood);color:#E9CFA6;display:grid;place-items:center;flex:none}
-.mark svg{width:16px;height:22px}
+.mark svg{width:13px;height:22px}
 
 input[type=text],input[type=email],input[type=password],input[type=tel],input[type=url],input[type=number],select,textarea{width:100%;border:1px solid var(--line2);background:#fff;border-radius:10px;padding:9px 12px;min-height:40px;transition:border-color .2s,box-shadow .2s}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--wood);box-shadow:0 0 0 3px color-mix(in srgb,var(--wood) 15%,transparent)}

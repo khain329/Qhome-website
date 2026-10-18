@@ -383,7 +383,7 @@
         const t = gsap.timeline({ scrollTrigger: Object.assign({ scrub: 1, onUpdate: self => setOn(self.progress), onLeaveBack: () => setOn(-1) }, st) });
         t.fromTo('.s-arch', { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: 'none', duration: .45 }, 0)
          .fromTo('.s-roof', { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: 'none', duration: .16 }, .5)
-         .fromTo('.s-tail', { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: 'none', duration: .1 }, .62)
+         .fromTo('.s-fill', { opacity: 0 }, { opacity: 1, ease: 'none', duration: .14 }, .6)
          .fromTo('.s-word', { opacity: 0, y: 10 }, { opacity: 1, y: 0, ease: 'none', duration: .14 }, .76)
          .fromTo('.pin1', { opacity: 0, scale: .5 }, { opacity: 1, scale: 1, duration: .06, transformOrigin: '50% 50%' }, 0)
          .fromTo('.pin2', { opacity: 0, scale: .5 }, { opacity: 1, scale: 1, duration: .06, transformOrigin: '50% 50%' }, .5)

@@ -90,7 +90,7 @@ header.site.scrolled{background:color-mix(in srgb,var(--paper) 86%,transparent);
 .nav{display:flex;align-items:center;justify-content:space-between;gap:24px;height:76px}
 .brand{display:flex;align-items:center;gap:12px}
 .brand-mark{width:40px;height:40px;border-radius:50%;background:var(--wood);display:grid;place-items:center;flex:none}
-.brand-mark svg{width:22px;height:30px}
+.brand-mark svg{width:17px;height:27px}
 .brand-name{font-family:var(--display);font-size:22px;font-weight:420;line-height:1;letter-spacing:-.01em}
 .brand-name small{display:block;font:500 9.5px/1.6 var(--body);letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-top:3px}
 .nav-links{display:flex;align-items:center;gap:26px;font-size:14px}
@@ -339,7 +339,8 @@ html.curtain-lock,html.curtain-lock body{overflow:hidden}
 .c-center{position:relative;z-index:4;display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;padding-left:var(--gutter-l);padding-right:var(--gutter-r);transition:opacity .55s var(--ease),transform .8s var(--ease)}
 .c-logo{width:clamp(128px,20vw,164px);height:clamp(128px,20vw,164px);flex:none;border-radius:50%;background:var(--wood);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:0 0 0 8px rgba(242,233,220,.55),0 24px 60px rgba(94,65,45,.35);animation:float 5s ease-in-out infinite alternate}
 @keyframes float{from{transform:translateY(-3px)}to{transform:translateY(4px)}}
-.c-logo svg{width:34%;height:48%}
+.c-logo .c-q{width:30%;height:47%}
+.c-logo .c-word{width:30%;height:9%;margin-top:6%}
 .c-logo span{font:500 10px/1 var(--display);letter-spacing:.32em;padding-left:.32em;color:#D9B98F}
 .c-title{font-family:var(--display);font-style:italic;font-weight:320;font-size:clamp(21px,2.4vw,27px);color:var(--wood);margin-top:-2px}
 .c-btn{min-height:54px;padding:0 calc(38px - .26em) 0 38px;border-radius:999px;background:var(--wood);color:var(--cream-on-dark);font:600 13.5px var(--body);letter-spacing:.26em;text-transform:uppercase;box-shadow:0 12px 30px rgba(94,65,45,.35);transition:transform .45s var(--ease),box-shadow .45s var(--ease),background .45s var(--ease)}
@@ -568,13 +569,14 @@ html.curtain-lock,html.curtain-lock body{overflow:hidden}
 .s-logo .display em{color:#E9B984}
 .s-logo-pin{min-height:100svh;display:flex;align-items:center;padding-block:clamp(70px,9vw,120px)}
 .s-logo-grid{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(30px,6vw,100px);align-items:center;width:100%}
-.s-mark{position:relative;width:100%;max-width:min(360px,62svh);justify-self:center}
+.s-mark{position:relative;width:100%;max-width:min(320px,42svh);justify-self:center}
 .s-mark svg{display:block;width:100%;height:auto;overflow:visible}
-.s-mark .stroke{fill:none;stroke:url(#cuL);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0}
+.s-mark .stroke{fill:none;stroke:url(#cuL);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0}
 .s-mark .glow{fill:url(#archGlow)}
-.s-mark .pin circle{fill:var(--espresso);stroke:#B98A5E;stroke-width:1.2}
-.s-mark .pin text{fill:#E9CFA6;font:500 11px var(--body);text-anchor:middle;dominant-baseline:central}
-.s-mark .s-word{fill:#D9B98F;font:500 21px var(--display);letter-spacing:.34em;text-anchor:middle}
+.s-mark .s-fill{fill:url(#cuL)}
+.s-mark .pin circle{fill:var(--espresso);stroke:#B98A5E;stroke-width:2.6}
+.s-mark .pin text{fill:#E9CFA6;font:500 25px var(--body);text-anchor:middle;dominant-baseline:central}
+.s-mark .s-word{fill:url(#cuL)}
 .s-logo-text{display:flex;flex-direction:column;gap:18px;min-width:0}
 .s-logo-text h2.display{font-size:clamp(38px,5.2vw,72px)}
 .s-notes{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column}
@@ -584,7 +586,7 @@ html.curtain-lock,html.curtain-lock body{overflow:hidden}
 .s-note p{color:var(--muted-on-dark);font-size:15px;margin-top:6px;max-width:46ch}
 .js-dim .s-note{opacity:.32}
 .js-dim .s-note.on{opacity:1}
-@media (max-width:900px){.s-logo-grid{grid-template-columns:1fr}.s-logo-pin{min-height:0}.s-mark{max-width:240px}}
+@media (max-width:900px){.s-logo-grid{grid-template-columns:1fr}.s-logo-pin{min-height:0}.s-mark{max-width:200px}}
 
 /* manifesto */
 .s-manifesto{padding-block:clamp(90px,12vw,170px)}
