@@ -428,7 +428,9 @@ html.curtain-lock,html.curtain-lock body{overflow:hidden}
 
 
 /* ảnh thật cắt từ bảng giá (thay bằng ảnh gốc chất lượng cao khi có) */
-.ph[data-v^="p-"],.ph[data-v^="cv-"]{background:var(--img) var(--pos,center)/cover no-repeat,#3a2517}
+.ph[data-v^="p-"]{background:var(--img) var(--pos,center)/cover no-repeat,#3a2517}
+/* ảnh đại diện chi nhánh: ảnh gán bằng background-image trong <style id="qh-img"> của từng trang */
+.ph[data-v^="cv-"]{background-color:#3a2517;background-position:var(--pos,center);background-size:cover;background-repeat:no-repeat}
 .ph[data-v^="p-"]::before,.ph[data-v^="cv-"]::before{display:none}
 .ph[data-v^="p-"]::after,.ph[data-v^="cv-"]::after{opacity:.08}
 .ph[data-v="p-svh"]{--img:url("img/svh.webp")}

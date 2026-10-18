@@ -428,7 +428,9 @@ html.curtain-lock,html.curtain-lock body{overflow:hidden}
 
 
 /* ảnh thật cắt từ bảng giá (thay bằng ảnh gốc chất lượng cao khi có) */
-.ph[data-v^="p-"],.ph[data-v^="cv-"]{background:var(--img) var(--pos,center)/cover no-repeat,#3a2517}
+.ph[data-v^="p-"]{background:var(--img) var(--pos,center)/cover no-repeat,#3a2517}
+/* ảnh đại diện chi nhánh: ảnh gán bằng background-image trong <style id="qh-img"> của từng trang */
+.ph[data-v^="cv-"]{background-color:#3a2517;background-position:var(--pos,center);background-size:cover;background-repeat:no-repeat}
 .ph[data-v^="p-"]::before,.ph[data-v^="cv-"]::before{display:none}
 .ph[data-v^="p-"]::after,.ph[data-v^="cv-"]::after{opacity:.08}
 .ph[data-v="p-svh"]{--img:url("img/svh.webp")}
@@ -667,7 +669,8 @@ html.curtain-lock,html.curtain-lock body{overflow:hidden}
 .ph[data-v="p-stripe"]{--img:url("img/stripe.webp")}
 
 /* poster phòng */
-.ph[data-v^="r-"],.ph[data-v^="t-"],.ph[data-v^="rp-"],.ph[data-v^="rt-"]{background:var(--img) var(--pos,center)/cover no-repeat,#2a1e16}
+.ph[data-v^="r-"],.ph[data-v^="t-"]{background:var(--img) var(--pos,center)/cover no-repeat,#2a1e16}
+.ph[data-v^="rp-"],.ph[data-v^="rt-"]{background-color:#2a1e16;background-position:var(--pos,center);background-size:cover;background-repeat:no-repeat}
 .ph[data-v^="r-"]::before,.ph[data-v^="t-"]::before,.ph[data-v^="rp-"]::before,.ph[data-v^="rt-"]::before{display:none}
 .ph[data-v^="r-"]::after,.ph[data-v^="t-"]::after,.ph[data-v^="rp-"]::after,.ph[data-v^="rt-"]::after{opacity:0}
 .lb-stage .ph[data-v^="r-"],.lb-stage .ph[data-v^="rp-"]{width:auto;height:min(76svh,calc(92vw / var(--ar,.707)));aspect-ratio:var(--ar,.707);max-width:92vw;max-height:none;background-size:contain;background-position:center;background-color:transparent}
