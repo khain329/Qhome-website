@@ -20,9 +20,50 @@ ARROW = '<svg><use href="#arrow"/></svg>'
 HOME_URL = 'index.html'
 
 # ---------------- shared chrome ----------------
-def head(title, desc, page='home', rooms_for=None):
+SITE_URL = (os.environ.get('URL') or 'https://mottrainghiem.netlify.app').rstrip('/')
+GA_ID = 'G-L86S7QWH19'
+PAGE_PATH = {'home': '/', 'story': '/cau-chuyen', 'rooms': '/phong', 'faq': '/faq'}
+def abs_url(src):
+    if not src: return f'{SITE_URL}/assets/og-qhome.jpg'
+    if src.startswith('http'): return src
+    return SITE_URL + '/' + src.lstrip('/')
+def price_range(b):
+    vals = [v for _, row in b['rows'] for v in row if v]
+    return f'{money(min(vals))}₫ – {money(max(vals))}₫' if vals else None
+def lodging_ld(b):
+    d = {'@type': 'LodgingBusiness', 'name': f'Q Home {b["name"]}', 'url': f'{SITE_URL}/{b["slug"]}',
+         'telephone': '+84' + b['phone'][1:] if b['phone'].startswith('0') else b['phone'],
+         'address': {'@type': 'PostalAddress', 'streetAddress': b['addr'], 'addressLocality': 'Thành phố Hồ Chí Minh', 'addressCountry': 'VN'},
+         'image': abs_url((b['cover'] or {}).get('src')), 'hasMap': b['map'] if b['map'] != '#' else None,
+         'openingHoursSpecification': {'@type': 'OpeningHoursSpecification', 'dayOfWeek': ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'], 'opens': '00:00', 'closes': '23:59'},
+         'priceRange': price_range(b), 'description': b['desc'] or None,
+         'amenityFeature': [{'@type': 'LocationFeatureSpecification', 'name': f, 'value': True} for f in b['feat']] or None,
+         'brand': {'@type': 'Brand', 'name': 'Q Home Staycation'}}
+    return {k: v for k, v in d.items() if v is not None}
+def seo_ld(page):
+    if page == 'home':
+        data = {'@context': 'https://schema.org', '@graph': [
+            {'@type': 'Organization', 'name': 'Q Home Staycation', 'url': SITE_URL + '/', 'logo': f'{SITE_URL}/assets/logo-512.png',
+             'sameAs': ['https://www.facebook.com/qhome.staycation', 'https://www.instagram.com/qhome.staycation/', 'https://www.tiktok.com/@qhome.staycation']},
+            *[lodging_ld(b) for b in B if not b['soon']]]}
+    else:
+        bi = next((i for i, b in enumerate(B) if b['slug'] == page), None)
+        if bi is None or B[bi]['soon']: return ''
+        data = dict({'@context': 'https://schema.org'}, **lodging_ld(B[bi]))
+    return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False).replace('</', '<\\/') + '</script>\n'
+GA_TAG = ('<script>(function(){var h=location.hostname;if(!/\\./.test(h)||/^(localhost|127\\.)/.test(h)||(/[?&]admin\\b/.test(location.search)&&window.parent!==window))return;'
+          'var s=document.createElement("script");s.async=1;s.src="https://www.googletagmanager.com/gtag/js?id=' + GA_ID + '";document.head.appendChild(s);'
+          'window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag("js",new Date());gtag("config","' + GA_ID + '");})();</script>\n')
+
+def head(title, desc, page='home', rooms_for=None, image=None):
     pj = json.dumps(C['pages'].get(page, {}), ensure_ascii=False).replace('</', '<\\/')
+    url = SITE_URL + PAGE_PATH.get(page, '/' + page)
+    img = image or f'{SITE_URL}/assets/og-qhome.jpg'
     extra = '<style id="qh-img">\n' + CT.image_css(B, rooms_for) + '</style>\n<script type="application/json" id="qh-content">' + pj + '</script>\n'
+    extra = (f'<link rel="canonical" href="{url}">\n<meta property="og:type" content="website">\n<meta property="og:site_name" content="Q Home Staycation">\n'
+             f'<meta property="og:locale" content="vi_VN">\n<meta property="og:title" content="{esc(title)}">\n<meta property="og:description" content="{esc(desc)}">\n'
+             f'<meta property="og:url" content="{url}">\n<meta property="og:image" content="{img}">\n<meta name="twitter:card" content="summary_large_image">\n'
+             + seo_ld(page) + GA_TAG + extra)
     return f'''<!doctype html>
 <html lang="vi">
 <head>
@@ -32,7 +73,6 @@ def head(title, desc, page='home', rooms_for=None):
 <meta name="description" content="{desc}">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<meta property="og:image" content="assets/logo-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&display=swap">
@@ -214,7 +254,7 @@ def home_main():
 def page_home():
     body = (f'<body data-page="home">\n{P["defs"]}\n\n{P["curtain"]}\n\n{P["badge"]}\n\n{header("home")}\n{mobile_menu("home")}\n'
             f'{home_main()}\n\n{footer("home")}\n{P["lightbox"]}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
-    return head('Qhome Staycation', 'Q Home – Một Trải Nghiệm. Staycation ấm cúng với 5 chi nhánh, mở cửa 24/7.', 'home', -1) + body
+    return head('Qhome Staycation · Staycation Sài Gòn, 5 chi nhánh mở cửa 24/7', 'Q Home Staycation: 5 chi nhánh staycation tại TP.HCM (' + ', '.join(dict.fromkeys(b['dist'] for b in B)) + '). Phòng theo giờ, qua đêm và theo ngày, mỗi phòng một bảng màu riêng. Mở cửa 24/7.', 'home', -1) + body
 
 # ---------------- story ----------------
 HOMES = {
@@ -528,9 +568,10 @@ def page_branch(bi):
     mainc = soon_main(bi) if b['soon'] else branch_main(bi)
     body = (f'<body data-page="branch" data-branch="{bi}">\n{P["defs"]}\n\n{P["badge"]}\n\n{header("branch", bi)}\n{mobile_menu("branch", bi)}\n'
             f'{mainc}\n\n{footer("branch")}\n{P["lightbox"]}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
-    title = f'Qhome {b["name"]}'
+    title = f'Qhome {b["name"]} · Staycation {b["dist"]}'
     desc = f'Q Home {b["name"]}, {b["addr"]}. Hotline {b["phoneTxt"]}. Mở cửa 24/7.' + (f' {len(b["rooms"])} phòng, bảng giá và ảnh từng phòng.' if not b['soon'] else ' Trang đang được hoàn thiện.')
-    return head(title, desc, b['slug'], bi) + body
+    cov = (b['cover'] or {}).get('src') or ''
+    return head(title, desc, b['slug'], bi, image=abs_url(cov) if re.search(r'\.(jpe?g|png)$', cov, re.I) else None) + body
 
 # ---------------- rooms page ----------------
 OPEN_LABEL = 'Mở cửa bước vào'
@@ -609,7 +650,7 @@ def rooms_main():
 def page_rooms():
     body = (f'<body data-page="rooms">\n{P["defs"]}\n\n{P["badge"]}\n\n{header("rooms")}\n{mobile_menu("rooms")}\n'
             f'{rooms_main()}\n\n{footer("rooms")}\n{P["lightbox"]}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
-    return head('Phòng · Qhome Staycation', 'Xem phòng tại 5 chi nhánh Q Home: Bàu Cát, Sư Vạn Hạnh, Ba Tháng Hai, Lê Đại Hành, Thích Quảng Đức. Mỗi phòng một bảng màu riêng.', 'rooms', None) + body
+    return head('Phòng · Qhome Staycation', 'Xem ảnh phòng tại các chi nhánh Q Home: ' + ', '.join(b['name'] for b in B) + '. Mỗi phòng một bảng màu riêng.', 'rooms', None) + body
 
 
 # ---------------- FAQ (theo nội quy lưu trú) ----------------
@@ -736,6 +777,12 @@ json.dump(C, open(f'{ROOT}/site/admin/content.json', 'w', encoding='utf-8'), ens
 json.dump([{'key': 'home', 'file': 'index.html', 'name': 'Trang chủ'}, {'key': 'story', 'file': 'cau-chuyen.html', 'name': 'Câu chuyện'}, {'key': 'rooms', 'file': 'phong.html', 'name': 'Phòng'}, {'key': 'faq', 'file': 'faq.html', 'name': 'Hỏi đáp'}] +
           [{'key': b['slug'], 'file': b['slug'] + '.html', 'name': b['name'], 'branch': i} for i, b in enumerate(B)],
           open(f'{ROOT}/site/admin/pages.json', 'w', encoding='utf-8'), ensure_ascii=False)
+# sơ đồ web cho Google
+import datetime as _dt
+_today = _dt.date.today().isoformat()
+_urls = ['/', '/phong', '/cau-chuyen', '/faq'] + ['/' + b['slug'] for b in B]
+open(f'{ROOT}/site/sitemap.xml', 'w', encoding='utf-8').write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join(f'  <url><loc>{SITE_URL}{u}</loc><lastmod>{_today}</lastmod></url>\n' for u in _urls) + '</urlset>\n')
+open(f'{ROOT}/site/robots.txt', 'w', encoding='utf-8').write(f'User-agent: *\nAllow: /\nDisallow: /admin/\n\nSitemap: {SITE_URL}/sitemap.xml\n')
 # chuyển hướng link trang chi nhánh cũ khi đổi tên chi nhánh (vd ba-thang-hai.html -> 3-2.html)
 _cur = [b['slug'] for b in B]
 _redir = []

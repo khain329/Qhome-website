@@ -193,6 +193,24 @@
   /* trang chi nhánh riêng */
   if (page === 'branch') { brCur = +(document.body.dataset.branch || 0); if ($('#brRooms')) renderRooms(BR[brCur], false); }
 
+  /* ---------- đo lượt bấm liên hệ (Google Analytics): gọi, Zalo, Messenger, chỉ đường, sao chép số ---------- */
+  const track = (method, branch, url) => { try { if (window.gtag) window.gtag('event', 'contact_click', { contact_method: method, branch: branch || 'Chung', link_url: url || '', page_type: page }); } catch (e) {} };
+  const brOf = str => { const d = String(str || '').replace(/\D/g, ''); const b = d.length >= 9 ? BR.find(x => x.phone && d.includes(x.phone.slice(1))) : null; return b ? b.name : ''; };
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href]');
+    if (a) {
+      const h = a.getAttribute('href');
+      let m = '';
+      if (/^tel:/i.test(h)) m = 'call';
+      else if (/zalo\.me/i.test(h)) m = 'zalo';
+      else if (/m\.me\/|messenger\.com|facebook\.com\/messages/i.test(h)) m = 'messenger';
+      else if (/maps\.app\.goo\.gl|google\.[^/]+\/maps|goo\.gl\/maps/i.test(h)) m = 'directions';
+      if (m) { const b = m === 'directions' ? (BR.find(x => x.map === h) || {}).name : brOf(h); track(m, b, h); }
+      return;
+    }
+    const c = e.target.closest('[data-copy]'); if (c) track('copy_phone', brOf(c.dataset.copy), '');
+  }, true);
+
   /* ---------- nút lên đầu trang ---------- */
   $$('[data-top]').forEach(b => b.addEventListener('click', () => { if (lenis) lenis.scrollTo(0, { duration: 1.6 }); else scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); setTimeout(() => { const f = $('.brand'); if (f) f.focus({ preventScroll: true }); }, 900); }));
 
