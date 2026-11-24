@@ -100,7 +100,7 @@ def header(page, bi=None):
   <div class="wrap nav">
     <a class="brand" href="{L["brand"]}" aria-label="Q Home – trang chủ">
       <span class="brand-mark"><svg><use href="#qmark"/></svg></span>
-      <span class="brand-name">Q Home<small>Một trải nghiệm</small></span>
+      <span class="brand-name">Q Home<small class="tagline">Một Trải Nghiệm</small></span>
     </a>
     <nav class="nav-links" aria-label="Điều hướng chính">
       <a href="{L["story"]}"{cur}>Câu chuyện</a>
@@ -148,7 +148,7 @@ def footer(page):
   <div class="wrap">
     <div class="foot">
       <div>
-        <a class="brand" href="{L["brand"]}"><span class="brand-mark"><svg><use href="#qmark"/></svg></span><span class="brand-name">Q Home<small>Một trải nghiệm</small></span></a>
+        <a class="brand" href="{L["brand"]}"><span class="brand-mark"><svg><use href="#qmark"/></svg></span><span class="brand-name">Q Home<small class="tagline">Một Trải Nghiệm</small></span></a>
         <p style="margin-top:18px;max-width:36ch">Staycation ấm cúng với 5 chi nhánh. <span class="foot-hours">Mở cửa 24/7</span></p>
         <p style="margin-top:14px"><a href="{L["story"]}">Câu chuyện Q Home</a></p>
         <p style="margin-top:6px"><a href="{L["faq"]}">Hỏi đáp &amp; nội quy lưu trú</a></p>
@@ -165,7 +165,7 @@ def footer(page):
         <a href="https://www.tiktok.com/@qhome.staycation" target="_blank" rel="noopener">TikTok</a>
       </div>
     </div>
-    <div class="foot-bottom"><span>© <span id="yr">2026</span> Q Home – Một Trải Nghiệm</span><span class="foot-acts">{extra}<button class="to-top" type="button" data-top aria-label="Lên đầu trang">Lên đầu trang <span class="to-top-ic"><svg><use href="#arrow"/></svg></span></button></span></div>
+    <div class="foot-bottom"><span>© <span id="yr">2026</span> Q Home – <span class="tagline">Một Trải Nghiệm</span></span><span class="foot-acts">{extra}<button class="to-top" type="button" data-top aria-label="Lên đầu trang">Lên đầu trang <span class="to-top-ic"><svg><use href="#arrow"/></svg></span></button></span></div>
   </div>
 </footer>
 '''
@@ -221,7 +221,7 @@ def home_main():
     a = m.index('<div class="rooms-track">') + len('<div class="rooms-track">'); b = m.index('<div class="room-end">')
     m = m[:a] + tier_cards() + '\n          ' + m[b:]
     m = m.replace('<div class="wrap"><div class="rooms-progress"><i></i></div></div>', '<div class="wrap rooms-ctrl"><div class="rooms-progress"><i></i></div><div class="rooms-arrows"><button class="rooms-arrow" id="roomsPrev" type="button" aria-label="Hạng phòng trước"><svg><use href="#arrow"/></svg></button><button class="rooms-arrow" id="roomsNext" type="button" aria-label="Hạng phòng sau"><svg><use href="#arrow"/></svg></button></div></div>', 1)
-    # gallery & door: ảnh thật
+    # gallery: ảnh thật
     G = [
         ('g1', 'p-ste', 'Bồn tắm · Suite 302 Sư Vạn Hạnh', 'su-van-hanh'),
         ('g2', 'p-32', 'Bồn tắm giữa vườn · Ba Tháng Hai', 'ba-thang-hai'),
@@ -239,7 +239,6 @@ def home_main():
             slug = slug_by_phone.get(original_phone[slug], '')
         m = re.sub(r'<button class="g-item ' + g + r'"[^>]*>.*?<span class="zoom">',
                    f'<button class="g-item {g}" data-reveal data-v="{v}" data-cap="{cap}" data-branch-slug="{slug}" aria-label="Xem ảnh: {cap}"><div class="ph" data-v="{v}"></div><span class="zoom">', m, count=1, flags=re.S)
-    m = m.replace('<div class="door-frame"><div class="ph" data-v="hello"></div></div>', '<div class="door-frame"><div class="ph" data-v="p-door"></div></div>')
     m = m.replace('Bấm vào ảnh để xem lớn. Trên điện thoại, vuốt sang để xem ảnh tiếp theo.', 'Ảnh thật từ các phòng của Q Home. Bấm vào ảnh để xem lớn, vuốt sang để xem ảnh tiếp theo.')
     # tiện nghi
     m = m.replace('<h3>Bồn tắm thư giãn</h3><p>Ngâm mình trong nước ấm, bật một bản nhạc, để cả ngày dài trôi đi.</p>',
@@ -842,7 +841,9 @@ print('built', len(home), len(story), len(css), len(js))
 # ---------------- standalone (mỗi trang 1 file, tự chứa CSS/JS/ảnh) ----------------
 import base64
 def inline(html, keep):
-    css_inl = css
+    with open(f'{ROOT}/site/assets/fonts/1FTV-HF-Gesco.ttf', 'rb') as font:
+        font_data = base64.b64encode(font.read()).decode()
+    css_inl = css.replace('url("fonts/1FTV-HF-Gesco.ttf")', f'url("data:font/ttf;base64,{font_data}")')
     def sub(mo):
         f = mo.group(1)
         return 'url("data:image/webp;base64,' + base64.b64encode(open(f'{ROOT}/site/assets/img/{f}', 'rb').read()).decode() + '")'

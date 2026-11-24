@@ -587,14 +587,9 @@
       .from('.hero [data-load]:not(.hero-arch)', { y: 24, opacity: 0, duration: 1, stagger: .08 }, .45);
     heroPlay = () => tl.restart(); if (curtainDone) tl.play();
 
-    if (has('.door')) mm.add({ wide: '(min-width: 760px)', narrow: '(max-width: 759px)' }, ctx => {
-      const startClip = ctx.conditions.wide ? 'inset(14% 36% 6% 36% round 600px 600px 18px 18px)' : 'inset(16% 16% 10% 16% round 400px 400px 16px 16px)';
-      const t = gsap.timeline({ scrollTrigger: { trigger: '.door', start: 'top top', end: '+=120%', pin: true, scrub: 1 } });
-      t.fromTo('.door-frame', { clipPath: startClip }, { clipPath: 'inset(0% 0% 0% 0% round 0px 0px 0px 0px)', ease: 'none' })
-       .fromTo('.door-frame .ph', { scale: 1.25 }, { scale: 1, ease: 'none' }, 0)
-       .fromTo('.door-quote > div', { opacity: 0, y: 40 }, { opacity: 1, y: 0, ease: 'power2.out', duration: .45 }, .55);
-    });
-
+    const door = $('.door');
+    if (door) gsap.from(door, { opacity: .7, duration: .55, ease: 'power2.out',
+      scrollTrigger: { trigger: door, start: 'top 90%', once: true } });
   }
 
   /* ===================== TRANG CÂU CHUYỆN ===================== */

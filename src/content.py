@@ -158,7 +158,7 @@ def widget(B):
   </div>
   <div class="cw-panel" id="cwChat" role="dialog" aria-labelledby="cwChatT" hidden>
     <div class="cw-head"><div><p class="cw-eyebrow">Nhắn tin</p><p class="cw-title" id="cwChatT">Nhắn cho chi nhánh nào?</p></div><button class="cw-x" type="button" data-cw-close aria-label="Đóng"><svg><use href="#i-close"/></svg></button></div>
-    <a class="cw-mess" href="https://m.me/qhome.staycation" target="_blank" rel="noopener"><span class="cw-ic cw-ic-mess"><svg><use href="#i-chat"/></svg></span><span class="cw-t"><b>Messenger fanpage</b><small>Fanpage chung của Q Home</small></span><svg class="cw-go"><use href="#arrow"/></svg></a>
+    <a class="cw-mess" href="https://m.me/qhome.booking" target="_blank" rel="noopener"><span class="cw-ic cw-ic-mess"><svg><use href="#i-chat"/></svg></span><span class="cw-t"><b>Messenger fanpage</b><small>Fanpage chung của Q Home</small></span><svg class="cw-go"><use href="#arrow"/></svg></a>
     <ul class="cw-list">{chat}</ul>
   </div>
   <div class="cw-btns">
