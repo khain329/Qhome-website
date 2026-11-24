@@ -147,6 +147,7 @@ header.site.scrolled{background:color-mix(in srgb,var(--paper) 86%,transparent);
 
 /* ---------- door ---------- */
 .door{position:relative;height:100svh;min-height:560px;background:var(--paper);overflow:hidden}
+.door-quote .display{text-wrap:balance}
 .door-frame{position:absolute;inset:0;clip-path:inset(0 0 0 0 round 0px 0px 0px 0px);will-change:clip-path}
 .door-frame .ph{position:absolute;inset:-6%}
 .door-frame::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,13,9,.15),rgba(20,13,9,.55))}
@@ -263,6 +264,10 @@ header.site.scrolled{background:color-mix(in srgb,var(--paper) 86%,transparent);
 .lb-btn:hover{background:rgba(242,227,207,.12)}
 .lb-btn svg{width:18px;height:18px}
 .lb-nav{display:flex;justify-content:center;align-items:center;gap:22px;margin-top:12px}
+.lb.has-booking{grid-template-rows:auto minmax(72px,1fr) auto;overflow-y:auto}
+.lb.has-booking .lb-stage .ph{max-height:100%}
+.lb-booking{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:10px}
+.lb-booking .btn{min-height:40px;padding-inline:16px;font-size:12px}
 
 /* ---------- amenities ---------- */
 .amen{border-top:1px solid color-mix(in srgb,var(--wood) 18%,transparent)}
@@ -324,6 +329,8 @@ footer{background:var(--espresso);color:var(--muted-on-dark);font-size:14px;padd
 .foot .brand-name small{color:var(--muted-on-dark)}
 .foot h4{font:500 11px var(--body);letter-spacing:.2em;text-transform:uppercase;color:var(--copper);margin:0 0 12px}
 .foot a{display:block;padding:3px 0}.foot a:hover{color:var(--cream-on-dark)}
+.foot-addr{display:block;font-size:12px;color:var(--muted-on-dark)}
+.foot-hours{display:block;white-space:nowrap}
 .foot-bottom{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:40px;font-size:12px}
 @media (max-width:760px){.foot{grid-template-columns:1fr}}
 
@@ -518,7 +525,9 @@ html.curtain-lock,html.curtain-lock body{overflow:hidden}
 .cw{position:fixed;z-index:70;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:flex-end;gap:12px;pointer-events:none}
 .cw > *{pointer-events:auto}
 .menu-open .cw,.curtain-lock .cw{opacity:0;visibility:hidden}
-.cw-btns{display:flex;flex-direction:column;gap:10px}
+.cw-btns{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.cw-book{min-height:40px;padding-inline:16px;background:var(--espresso);box-shadow:0 10px 26px rgba(42,30,22,.28)}
+.cw-book:hover{background:var(--wood)}
 .cw-btn{position:relative;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;box-shadow:0 10px 26px rgba(42,30,22,.28),0 0 0 1px rgba(185,138,94,.25);transition:transform .45s var(--ease),background .35s var(--ease),color .35s var(--ease)}
 .cw-btn svg{width:25px;height:25px;grid-area:1/1;transition:transform .45s var(--ease),opacity .3s}
 .cw-btn .x{opacity:0;transform:rotate(-90deg) scale(.6)}
@@ -533,7 +542,7 @@ html.curtain-lock,html.curtain-lock body{overflow:hidden}
 .cw-btn-chat:hover{background:#fff}
 .cw-tip{position:absolute;right:calc(100% + 12px);top:50%;transform:translate(6px,-50%);white-space:nowrap;background:var(--espresso);color:var(--cream-on-dark);font-size:12.5px;padding:7px 12px;border-radius:999px;opacity:0;pointer-events:none;transition:.3s var(--ease)}
 @media (hover:hover) and (pointer:fine){.cw-btn:hover .cw-tip{opacity:1;transform:translate(0,-50%)}.cw-btn[aria-expanded="true"] .cw-tip{opacity:0}}
-.cw-panel{width:min(340px,calc(100vw - 32px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px)));max-height:calc(100svh - 190px);overflow:auto;background:var(--paper);border-radius:22px;padding:16px;box-shadow:0 30px 70px -18px rgba(42,30,22,.45),0 0 0 1px color-mix(in srgb,var(--wood) 14%,transparent);
+.cw-panel{width:min(340px,calc(100vw - 32px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px)));max-height:calc(100svh - 240px);overflow:auto;background:var(--paper);border-radius:22px;padding:16px;box-shadow:0 30px 70px -18px rgba(42,30,22,.45),0 0 0 1px color-mix(in srgb,var(--wood) 14%,transparent);
   transform-origin:100% 100%;animation:cwIn .45s var(--ease) both}
 .cw-panel[hidden]{display:none}
 @keyframes cwIn{from{opacity:0;transform:translateY(12px) scale(.94)}to{opacity:1;transform:none}}

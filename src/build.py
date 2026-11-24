@@ -1,4 +1,4 @@
-"""Build Qhome site.
+"""Build Q Home site.
 Outputs:
   site/                 bản deploy (GitHub/Netlify): index.html, cau-chuyen.html, assets/
   index.html            bản xem trước cho Artifact (trang chủ, không có khung <html>)
@@ -44,11 +44,11 @@ def seo_ld(page):
     if page == 'home':
         data = {'@context': 'https://schema.org', '@graph': [
             {'@type': 'Organization', 'name': 'Q Home Staycation', 'url': SITE_URL + '/', 'logo': f'{SITE_URL}/assets/logo-512.png',
-             'sameAs': ['https://www.facebook.com/qhome.staycation', 'https://www.instagram.com/qhome.staycation/', 'https://www.tiktok.com/@qhome.staycation']},
-            *[lodging_ld(b) for b in B if not b['soon']]]}
+             'sameAs': [CT.FACEBOOK_URL, 'https://www.instagram.com/qhome.staycation/', 'https://www.tiktok.com/@qhome.staycation']},
+            *[lodging_ld(b) for b in B]]}
     else:
         bi = next((i for i, b in enumerate(B) if b['slug'] == page), None)
-        if bi is None or B[bi]['soon']: return ''
+        if bi is None: return ''
         data = dict({'@context': 'https://schema.org'}, **lodging_ld(B[bi]))
     return '<script type="application/ld+json">' + json.dumps(data, ensure_ascii=False).replace('</', '<\\/') + '</script>\n'
 GA_TAG = ('<script>(function(){var h=location.hostname;if(!/\\./.test(h)||/^(localhost|127\\.)/.test(h)||(/[?&]admin\\b/.test(location.search)&&window.parent!==window))return;'
@@ -125,7 +125,8 @@ def mobile_menu(page, bi=None):
     cur = ' aria-current="page"' if page == 'story' else ''
     rcur = ' aria-current="page"' if page == 'rooms' else ''
     fcur = ' aria-current="page"' if page == 'faq' else ''
-    items = ''.join(f'<a href="{L["cn"](i)}"{" aria-current=\"page\"" if bi == i else ""}><span>{b["n"]}</span>{b["name"]}<small>{b["dist"]}</small></a>' for i, b in enumerate(B))
+    current = ' aria-current="page"'
+    items = ''.join(f'<a href="{L["cn"](i)}"{current if bi == i else ""}><span>{b["n"]}</span>{b["name"]}<small>{b["dist"]}</small></a>' for i, b in enumerate(B))
     return f'''<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
   <nav aria-label="Menu di động">
     <a href="{L["story"]}"{cur}>Câu chuyện</a>
@@ -141,15 +142,15 @@ def mobile_menu(page, bi=None):
 
 def footer(page):
     L = links(page)
-    br = ''.join(f'<a href="{L["cn"](i)}">{dot(b)}{b["name"]}</a>' for i, b in enumerate(B))
+    br = ''.join(f'<a href="{L["cn"](i)}">{dot(b)}{esc(b["name"])}<span class="foot-addr">{esc(b["addr"])}</span></a>' for i, b in enumerate(B))
     extra = '<button class="replay" id="replayCurtain" type="button">Xem lại màn kéo rèm</button>' if page == 'home' else f'<a class="replay" href="{HOME_URL}">Về trang chủ</a>'
     return f'''<footer class="on-dark">
   <div class="wrap">
     <div class="foot">
       <div>
         <a class="brand" href="{L["brand"]}"><span class="brand-mark"><svg><use href="#qmark"/></svg></span><span class="brand-name">Q Home<small>Một trải nghiệm</small></span></a>
-        <p style="margin-top:18px;max-width:36ch">Staycation ấm cúng với 5 chi nhánh. Mở cửa 24/7.</p>
-        <p style="margin-top:14px"><a href="{L["story"]}">Câu chuyện Qhome</a></p>
+        <p style="margin-top:18px;max-width:36ch">Staycation ấm cúng với 5 chi nhánh. <span class="foot-hours">Mở cửa 24/7</span></p>
+        <p style="margin-top:14px"><a href="{L["story"]}">Câu chuyện Q Home</a></p>
         <p style="margin-top:6px"><a href="{L["faq"]}">Hỏi đáp &amp; nội quy lưu trú</a></p>
       </div>
       <div>
@@ -159,7 +160,7 @@ def footer(page):
       </div>
       <div>
         <h4>Theo dõi</h4>
-        <a href="https://www.facebook.com/qhome.staycation" target="_blank" rel="noopener">Facebook</a>
+        <a href="{CT.FACEBOOK_URL}" target="_blank" rel="noopener">Facebook</a>
         <a href="https://www.instagram.com/qhome.staycation/" target="_blank" rel="noopener">Instagram</a>
         <a href="https://www.tiktok.com/@qhome.staycation" target="_blank" rel="noopener">TikTok</a>
       </div>
@@ -168,6 +169,14 @@ def footer(page):
   </div>
 </footer>
 '''
+
+def lightbox():
+    booking = f'''<div id="lbBooking" class="lb-booking on-dark" hidden>
+      <a class="btn btn-solid" id="lbZalo" target="_blank" rel="noopener">Đặt qua Zalo</a>
+      <a class="btn btn-line" id="lbFacebook" href="{CT.FACEBOOK_URL}" target="_blank" rel="noopener">Đặt qua Facebook</a>
+    </div>'''
+    return P['lightbox'].replace('<div class="lb-nav">', booking + '\n    <div class="lb-nav">', 1)
+
 
 SCRIPTS = '''<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -213,15 +222,25 @@ def home_main():
     m = m[:a] + tier_cards() + '\n          ' + m[b:]
     m = m.replace('<div class="wrap"><div class="rooms-progress"><i></i></div></div>', '<div class="wrap rooms-ctrl"><div class="rooms-progress"><i></i></div><div class="rooms-arrows"><button class="rooms-arrow" id="roomsPrev" type="button" aria-label="Hạng phòng trước"><svg><use href="#arrow"/></svg></button><button class="rooms-arrow" id="roomsNext" type="button" aria-label="Hạng phòng sau"><svg><use href="#arrow"/></svg></button></div></div>', 1)
     # gallery & door: ảnh thật
-    G = [('g1', 'p-ste', 'Bồn tắm · Suite 302 Sư Vạn Hạnh'), ('g2', 'p-32', 'Bồn tắm giữa vườn · Ba Tháng Hai'),
-         ('g3', 'p-jungle', 'Bồn tắm đá · Suite 401 Ba Tháng Hai'), ('g4', 'p-wave', 'Gương lượn sóng · Premium 402 Ba Tháng Hai'),
-         ('g5', 'p-bc2', 'Tường gỗ · Premium 302 Bàu Cát'), ('g6', 'p-tqd', 'Góc ghế vàng · Premium 102 Thích Quảng Đức'),
-         ('g7', 'p-svhlv', 'Phòng khách · Premium 401 Sư Vạn Hạnh')]
-    for g, v, cap in G:
+    G = [
+        ('g1', 'p-ste', 'Bồn tắm · Suite 302 Sư Vạn Hạnh', 'su-van-hanh'),
+        ('g2', 'p-32', 'Bồn tắm giữa vườn · Ba Tháng Hai', 'ba-thang-hai'),
+        ('g3', 'p-jungle', 'Bồn tắm đá · Suite 401 Ba Tháng Hai', 'ba-thang-hai'),
+        ('g4', 'p-wave', 'Gương lượn sóng · Premium 402 Ba Tháng Hai', 'ba-thang-hai'),
+        ('g5', 'p-bc2', 'Tường gỗ · Premium 302 Bàu Cát', 'bau-cat'),
+        ('g6', 'p-tqd', 'Góc ghế vàng · Premium 102 Thích Quảng Đức', 'thich-quang-duc'),
+        ('g7', 'p-svhlv', 'Phòng khách · Premium 401 Sư Vạn Hạnh', 'su-van-hanh'),
+    ]
+    branch_slugs = {b['slug'] for b in B}
+    slug_by_phone = {b['phone']: b['slug'] for b in B if b['phone']}
+    original_phone = {CT.slugify(b['name']): b['phone'] for b in CT.default_branches()}
+    for g, v, cap, slug in G:
+        if slug not in branch_slugs:
+            slug = slug_by_phone.get(original_phone[slug], '')
         m = re.sub(r'<button class="g-item ' + g + r'"[^>]*>.*?<span class="zoom">',
-                   f'<button class="g-item {g}" data-reveal data-v="{v}" data-cap="{cap}" aria-label="Xem ảnh: {cap}"><div class="ph" data-v="{v}"></div><span class="zoom">', m, count=1, flags=re.S)
+                   f'<button class="g-item {g}" data-reveal data-v="{v}" data-cap="{cap}" data-branch-slug="{slug}" aria-label="Xem ảnh: {cap}"><div class="ph" data-v="{v}"></div><span class="zoom">', m, count=1, flags=re.S)
     m = m.replace('<div class="door-frame"><div class="ph" data-v="hello"></div></div>', '<div class="door-frame"><div class="ph" data-v="p-door"></div></div>')
-    m = m.replace('Bấm vào ảnh để xem lớn. Trên điện thoại, vuốt sang để xem ảnh tiếp theo.', 'Ảnh thật từ các phòng của Qhome. Bấm vào ảnh để xem lớn, vuốt sang để xem ảnh tiếp theo.')
+    m = m.replace('Bấm vào ảnh để xem lớn. Trên điện thoại, vuốt sang để xem ảnh tiếp theo.', 'Ảnh thật từ các phòng của Q Home. Bấm vào ảnh để xem lớn, vuốt sang để xem ảnh tiếp theo.')
     # tiện nghi
     m = m.replace('<h3>Bồn tắm thư giãn</h3><p>Ngâm mình trong nước ấm, bật một bản nhạc, để cả ngày dài trôi đi.</p>',
                   '<h3>Bồn tắm thư giãn</h3><p>Các phòng Suite ở Sư Vạn Hạnh và Ba Tháng Hai có bồn tắm nằm. Ngâm mình thật lâu, để cả ngày dài trôi đi.</p>')
@@ -235,6 +254,12 @@ def home_main():
     m = re.sub(r'(<section class="section loc" id="chi-nhanh" style=")[^"]*(")', lambda mo: mo.group(1) + f'--brc:{B[0]["c"]};--bron:{B[0]["ink"]};--brt:{B[0]["t"]}' + mo.group(2), m, count=1)
     # danh sách phòng trong thẻ chi nhánh
     b0 = B[0]
+    for element_id, value in (
+        ('brNo', f'Chi nhánh {b0["n"]} · {b0["dist"]}'), ('brName', b0['name']),
+        ('brAddr', b0['addr']), ('brCapName', b0['name']),
+    ):
+        m = re.sub(r'(id="' + element_id + r'">)[^<]*', lambda mo: mo[1] + esc(value), m, count=1)
+    m = re.sub(r'(id="brMap" href=")[^"]*', lambda mo: mo[1] + esc(b0['map']), m, count=1)
     rooms_html = f'''
           <div class="br-rooms br-feat">
             <ul class="pfeat" id="brFeat" aria-label="Tiện ích"></ul>
@@ -248,21 +273,21 @@ def home_main():
     # nút dẫn sang trang Câu chuyện
     i = m.index('<div class="facts" data-reveal>'); j = i
     for _ in range(4): j = m.index('</div>', j) + len('</div>')
-    m = m[:j] + f'\n        <a class="btn btn-line magnetic home-story-link" href="cau-chuyen.html" data-reveal>Đọc câu chuyện Qhome {ARROW}</a>' + m[j:]
+    m = m[:j] + f'\n        <a class="btn btn-line magnetic home-story-link" href="cau-chuyen.html" data-reveal>Đọc câu chuyện Q Home {ARROW}</a>' + m[j:]
     return m
 
 def page_home():
     body = (f'<body data-page="home">\n{P["defs"]}\n\n{P["curtain"]}\n\n{P["badge"]}\n\n{header("home")}\n{mobile_menu("home")}\n'
-            f'{home_main()}\n\n{footer("home")}\n{P["lightbox"]}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
-    return head('Qhome Staycation · Staycation Sài Gòn, 5 chi nhánh mở cửa 24/7', 'Q Home Staycation: 5 chi nhánh staycation tại TP.HCM (' + ', '.join(dict.fromkeys(b['dist'] for b in B)) + '). Phòng theo giờ, qua đêm và theo ngày, mỗi phòng một bảng màu riêng. Mở cửa 24/7.', 'home', -1) + body
+            f'{home_main()}\n\n{footer("home")}\n{lightbox()}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
+    return head('Q Home Staycation · Staycation Sài Gòn, 5 chi nhánh mở cửa 24/7', 'Q Home Staycation: 5 chi nhánh staycation tại TP.HCM (' + ', '.join(dict.fromkeys(b['dist'] for b in B)) + '). Phòng theo giờ, qua đêm và theo ngày, mỗi phòng một bảng màu riêng. Mở cửa 24/7.', 'home', -1) + body
 
 # ---------------- story ----------------
 HOMES = {
     'Bàu Cát': ('Sáng, sạch và đầy màu', 'Phòng trắng sáng, đầu giường nhung và gạch ốp mỗi phòng một màu: đỏ, hồng, xanh rêu, xanh navy. 10 phòng Deluxe và Premium.'),
     'Sư Vạn Hạnh': ('Rộng rãi, tối giản, có bồn tắm', 'Phòng rộng 20–32m², tường trắng, sàn gỗ và tranh nghệ thuật. Ba phòng Suite có bồn tắm nằm và ban công.'),
     'Ba Tháng Hai': ('Một khu vườn trong phòng', 'Gương lượn sóng, tường sọc và ban công ở hầu hết các phòng. Suite 401 có bồn tắm đá giữa vườn cây. Chi nhánh duy nhất có đủ bốn hạng phòng.'),
-    'Lê Đại Hành': ('Ấm như phòng khách nhà mình', 'Sofa xanh rêu, rèm vải mỏng và đèn ngủ vàng. Gần gũi, giản dị, ngay giữa Quận 11.'),
-    'Thích Quảng Đức': ('Mỗi phòng một sắc màu', 'Tường hồng, cam, xanh rêu và máy chiếu 100 inch. Có bếp chung, bãi đậu xe hơi và khu vườn có ghế ngồi, trong hẻm yên tĩnh ở Phú Nhuận.'),
+    'Lê Đại Hành': ('Ấm như phòng khách nhà mình', 'Sofa xanh rêu, rèm vải mỏng và đèn ngủ vàng. Gần gũi, giản dị, ở Phường Phú Thọ.'),
+    'Thích Quảng Đức': ('Mỗi phòng một sắc màu', 'Tường hồng, cam, xanh rêu và máy chiếu 100 inch. Có bếp chung, bãi đậu xe hơi và khu vườn có ghế ngồi, trong hẻm yên tĩnh ở Phường Đức Nhuận.'),
 }
 def hcards():
     out = []
@@ -299,7 +324,12 @@ def story_main():
           <span class="line"><span>mà bọn mình</span></span>
           <span class="line"><span>gọi là <span class="ital">Home.</span></span></span>
         </h1>
-        <p class="lede" data-load>Q Home bắt đầu từ một ý nghĩ rất đơn giản: giữa Sài Gòn bận rộn, ai cũng cần một nơi để về. Không phải khách sạn, cũng không hẳn là nhà mình. Một chốn đủ quen để thả lỏng, đủ lạ để thấy mình đang được nghỉ.</p>
+        <div class="s-intro" data-load>
+          <p class="lede">Q Home bắt đầu từ một ý nghĩ rất đơn giản: tạo nên một nơi để bạn có thể thật sự “trở về”.</p>
+          <p class="lede">Vì thế, mỗi chi tiết tại Q Home đều được lựa chọn và chăm chút bằng sự kỹ lưỡng như cách bạn chọn vật dụng cho chính ngôi nhà của mình.</p>
+          <p class="lede">Từ giường bọc vải êm ái, hạn chế va chạm khi nghỉ ngơi, đến ga nệm chất liệu Tencel mềm mát, hạn chế bụi vải. Từng chất liệu đều được cân nhắc để mang lại cảm giác thoải mái trong suốt thời gian lưu trú.</p>
+          <p class="lede">Cùng với quy trình dọn dẹp tỉ mỉ từng góc nhỏ, Q Home mong muốn mỗi lần bạn bước vào phòng đều là một lần cảm nhận được sự sạch sẽ, dễ chịu và thân thuộc.</p>
+        </div>
         <div class="s-meta" data-load>
           <div><b>5</b><span>ngôi nhà</span></div>
           <div><b>40+</b><span>phòng nghỉ</span></div>
@@ -348,11 +378,11 @@ def story_main():
     <div class="wrap s-video-grid">
       <div class="s-video-copy">
         <p class="eyebrow" data-reveal>Hậu trường</p>
-        <h2 class="display" id="videoT" data-split>Mọi trải nghiệm tốt <em>bắt đầu từ một chi tiết nhỏ.</em></h2>
-        <p class="lede" data-reveal>Từ những buổi đi tìm chiếc giường chuẩn 5 sao, bảng ý tưởng dán kín tường, đến lúc tự tay khiêng từng tấm nệm vào phòng. Vì với Qhome, chiếc giường là nơi nâng niu cảm xúc của bạn sau một ngày dài.</p>
+        <h2 class="display" id="videoT" data-split>Mọi trải nghiệm tốt <em>bắt&nbsp;đầu từ một chi tiết nhỏ.</em></h2>
+        <p class="lede" data-reveal>Từ những buổi đi tìm chiếc giường chuẩn 5 sao, bảng ý tưởng dán kín tường, đến lúc tự tay khiêng từng tấm nệm vào phòng. Vì với Q Home, chiếc giường là nơi nâng niu cảm xúc của bạn sau một ngày dài.</p>
       </div>
       <div class="s-video-frame" data-reveal>
-        <video class="s-vid" id="sVid" src="assets/video/qhome-hau-truong.mp4" poster="assets/video/qhome-hau-truong.webp" playsinline muted loop preload="none" aria-label="Video hậu trường Qhome: đi tìm chiếc giường chuẩn 5 sao"></video>
+        <video class="s-vid" id="sVid" src="assets/video/qhome-hau-truong.mp4" poster="assets/video/qhome-hau-truong.webp" playsinline muted loop preload="none" aria-label="Video hậu trường Q Home: đi tìm chiếc giường chuẩn 5 sao"></video>
         <button class="s-vid-play" id="sVidPlay" type="button" aria-label="Phát video"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
         <button class="s-vid-sound" id="sVidSound" type="button" aria-pressed="false" aria-label="Bật tiếng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path class="on" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path class="off" d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
       </div>
@@ -363,11 +393,11 @@ def story_main():
   <section class="s-manifesto">
     <div class="wrap">
       <p class="eyebrow" data-reveal>Điều bọn mình tin</p>
-      <p class="s-manifesto-text">Nghỉ ngơi không cần đi xa. Chỉ cần một căn phòng ấm, một ánh đèn vàng, một bồn nước nóng và đủ yên để nghe thấy chính mình. Ở Qhome, bạn được phép <em>dừng lại tất cả, và bắt đầu chữa lành.</em></p>
+      <p class="s-manifesto-text">Nghỉ ngơi không cần đi xa. Chỉ cần một căn phòng ấm, một ánh đèn vàng, một bồn nước nóng và đủ yên để nghe thấy chính mình. Ở Q Home, bạn được phép <em>dừng lại tất cả, và bắt đầu chữa lành.</em></p>
       <div class="s-pillars">
         <div class="s-pillar" data-reveal><h3>Dừng lại</h3><p>Tắt bớt thông báo, đặt điện thoại xuống. Ở đây không có gì phải vội.</p></div>
         <div class="s-pillar" data-reveal><h3>Thả lỏng</h3><p>Bồn nước ấm, ánh đèn vàng, chăn gối mềm. Mọi thứ được sắp đặt để bạn nghỉ cho thật.</p></div>
-        <div class="s-pillar" data-reveal><h3>Trở về</h3><p>Rời Qhome với một cái đầu nhẹ hơn, và một lý do để quay lại.</p></div>
+        <div class="s-pillar" data-reveal><h3>Trở về</h3><p>Rời Q Home với một cái đầu nhẹ hơn, và một lý do để quay lại.</p></div>
       </div>
     </div>
   </section>
@@ -391,7 +421,7 @@ def story_main():
   <!-- A DAY -->
   <section class="section s-day" aria-labelledby="dayT">
     <div class="wrap">
-      <p class="eyebrow" data-reveal>Một ngày ở Qhome</p>
+      <p class="eyebrow" data-reveal>Một ngày ở Q Home</p>
       <h2 class="display" id="dayT" data-split>Ghé lúc nào <em>cũng được.</em></h2>
       <div class="day-track">
         <div class="day-line" aria-hidden="true"><i></i></div>
@@ -421,7 +451,7 @@ def story_main():
 def page_story():
     body = (f'<body data-page="story">\n{P["defs"]}\n\n{P["badge"]}\n\n{header("story")}\n{mobile_menu("story")}\n'
             f'{story_main()}\n\n{footer("story")}\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
-    return head('Câu chuyện Qhome', 'Câu chuyện Q Home – Một Trải Nghiệm: ý nghĩa logo, điều bọn mình tin và năm ngôi nhà.', 'story', -1) + body
+    return head('Câu chuyện Q Home', 'Câu chuyện Q Home – Một Trải Nghiệm: ý nghĩa logo, điều bọn mình tin và năm ngôi nhà.', 'story', -1) + body
 
 # ---------------- branch pages ----------------
 def others(bi):
@@ -498,7 +528,7 @@ def branch_main(bi):
     <div class="wrap">
       <div class="bp-head">
         <div><p class="eyebrow" data-reveal>Bảng giá</p><h2 class="display" id="priceT" data-split>Giá phòng <em>{b['name']}.</em></h2></div>
-        <p class="lede" data-reveal>Đơn vị: đồng. Giá có thể thay đổi vào dịp lễ, nhắn chi nhánh để có giá chính xác nhất.</p>
+        <p class="lede" data-reveal>Giá có thể thay đổi vào dịp lễ, nhắn chi nhánh để có giá chính xác nhất.</p>
       </div>
       <div data-reveal>
         <div class="price-scroll">
@@ -567,8 +597,8 @@ def page_branch(bi):
     b = B[bi]
     mainc = soon_main(bi) if b['soon'] else branch_main(bi)
     body = (f'<body data-page="branch" data-branch="{bi}">\n{P["defs"]}\n\n{P["badge"]}\n\n{header("branch", bi)}\n{mobile_menu("branch", bi)}\n'
-            f'{mainc}\n\n{footer("branch")}\n{P["lightbox"]}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
-    title = f'Qhome {b["name"]} · Staycation {b["dist"]}'
+            f'{mainc}\n\n{footer("branch")}\n{lightbox()}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
+    title = f'Q Home {b["name"]} · Staycation {b["dist"]}'
     desc = f'Q Home {b["name"]}, {b["addr"]}. Hotline {b["phoneTxt"]}. Mở cửa 24/7.' + (f' {len(b["rooms"])} phòng, bảng giá và ảnh từng phòng.' if not b['soon'] else ' Trang đang được hoàn thiện.')
     cov = (b['cover'] or {}).get('src') or ''
     return head(title, desc, b['slug'], bi, image=abs_url(cov) if re.search(r'\.(jpe?g|png)$', cov, re.I) else None) + body
@@ -609,7 +639,7 @@ def rooms_main():
     </div>
   </section>
 
-  <section class="rc" aria-roledescription="carousel" aria-label="{len(B)} chi nhánh Qhome">
+  <section class="rc" aria-roledescription="carousel" aria-label="{len(B)} chi nhánh Q Home">
     <div class="rc-track" id="rcTrack" tabindex="0" aria-label="Kéo hoặc dùng phím mũi tên để xem chi nhánh khác">
         {''.join(slides)}
     </div>
@@ -643,14 +673,14 @@ def rooms_main():
     <ul class="pfeat rs-feat" id="rsFeat" aria-label="Tiện ích"></ul>
     <p class="rs-hint">Bấm vào phòng để xem ảnh, dùng mũi tên để xem phòng kế tiếp.</p>
     <div class="rs-rooms" id="rsRooms"></div>
-    <div class="rs-foot"><a class="btn btn-line" id="rsPage" href="#">Xem trang chi nhánh {ARROW}</a><a class="btn btn-solid" id="rsZalo" href="#" target="_blank" rel="noopener">Nhắn Zalo chi nhánh</a></div>
+    <div class="rs-foot"><a class="btn btn-line" id="rsPage" href="#">Xem trang chi nhánh {ARROW}</a><a class="btn btn-solid" id="rsZalo" href="#" target="_blank" rel="noopener">Đặt qua Zalo</a><a class="btn btn-line" id="rsFacebook" href="{CT.FACEBOOK_URL}" target="_blank" rel="noopener">Đặt qua Facebook</a></div>
   </div>
 </div>"""
 
 def page_rooms():
     body = (f'<body data-page="rooms">\n{P["defs"]}\n\n{P["badge"]}\n\n{header("rooms")}\n{mobile_menu("rooms")}\n'
-            f'{rooms_main()}\n\n{footer("rooms")}\n{P["lightbox"]}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
-    return head('Phòng · Qhome Staycation', 'Xem ảnh phòng tại các chi nhánh Q Home: ' + ', '.join(b['name'] for b in B) + '. Mỗi phòng một bảng màu riêng.', 'rooms', None) + body
+            f'{rooms_main()}\n\n{footer("rooms")}\n{lightbox()}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{SCRIPTS}</body>\n</html>\n')
+    return head('Phòng · Q Home Staycation', 'Xem ảnh phòng tại các chi nhánh Q Home: ' + ', '.join(b['name'] for b in B) + '. Mỗi phòng một bảng màu riêng.', 'rooms', None) + body
 
 
 # ---------------- FAQ (theo nội quy lưu trú) ----------------
@@ -661,13 +691,13 @@ FAQ = [
     ('Mình muốn nhận phòng sớm hoặc trả phòng muộn hơn được không?',
      '<p>Được, nếu phòng còn trống. Bạn nhắn chi nhánh trước để bọn mình sắp xếp. Phần thời gian thêm sẽ tính phụ thu theo giá niêm yết.</p>'),
     ('Trả phòng sớm hơn giờ đã đặt thì có được giảm giá hay hoàn tiền không?',
-     '<p>Không. Khi bạn trả phòng sớm hơn khung giờ đã đặt, Qhome không điều chỉnh giá phòng và không hoàn tiền phần thời gian còn lại.</p>'),
+     '<p>Không. Khi bạn trả phòng sớm hơn khung giờ đã đặt, Q Home không điều chỉnh giá phòng và không hoàn tiền phần thời gian còn lại.</p>'),
     ('Nếu mình đến muộn hơn giờ nhận phòng thì sao?',
-     '<p>Bạn nhắn hoặc gọi báo chi nhánh trước là được, bọn mình vẫn giữ phòng cho bạn. Trường hợp đã quá giờ nhận phòng mà không có thông báo và không liên lạc được, Qhome có quyền huỷ đặt phòng, không hoàn cọc và nhường phòng cho lượt đặt khác.</p>'),
+     '<p>Bạn nhắn hoặc gọi báo chi nhánh trước là được, bọn mình vẫn giữ phòng cho bạn. Trường hợp đã quá giờ nhận phòng mà không có thông báo và không liên lạc được, Q Home có quyền huỷ đặt phòng, không hoàn cọc và nhường phòng cho lượt đặt khác.</p>'),
     ('Khi nhận phòng cần mang theo giấy tờ gì?',
      '<p>Bạn làm thủ tục tại quầy lễ tân và xuất trình một giấy tờ tuỳ thân: CMND, CCCD hoặc hộ chiếu.</p>'),
     ('Khi trả phòng có kiểm tra phòng không?',
-     '<p>Có. Sau khi bạn trả phòng, nhân viên sẽ kiểm tra tình trạng phòng. Nếu có hư hỏng hoặc mất mát tài sản, Qhome sẽ báo bạn và tính phí bồi thường vào hoá đơn cuối cùng.</p>'),
+     '<p>Có. Sau khi bạn trả phòng, nhân viên sẽ kiểm tra tình trạng phòng. Nếu có hư hỏng hoặc mất mát tài sản, Q Home sẽ báo bạn và tính phí bồi thường vào hoá đơn cuối cùng.</p>'),
   ]),
   ('so-khach-phu-thu', 'Số khách & phụ thu', [
     ('Một phòng ở được mấy người?',
@@ -676,18 +706,18 @@ FAQ = [
      '<p>Bạn bè hoặc người thân ghé thăm từ 2 tiếng trở lên sẽ phụ thu <b>100.000đ</b>. Ghé dưới 2 tiếng thì không tính phí.</p>'),
     ('Trẻ em có tính phí không?',
      '<p>Trẻ em dưới 6 tuổi được miễn phí khi ở chung phòng với người lớn.</p>'),
-    ('Qhome có giường phụ không?',
+    ('Q Home có giường phụ không?',
      '<p>Có. Bạn báo trước khi đến để bọn mình chuẩn bị. Phụ thu <b>100.000đ cho mỗi giường phụ</b>.</p>'),
   ]),
   ('noi-quy', 'Nội quy trong phòng', [
     ('Có được hút thuốc trong phòng không?',
-     '<p>Không. Qhome không cho phép hút thuốc, sử dụng chất kích thích hoặc các chất cấm trong phòng.</p>'),
+     '<p>Không. Q Home không cho phép hút thuốc, sử dụng chất kích thích hoặc các chất cấm trong phòng.</p>'),
     ('Mình muốn tổ chức sinh nhật hoặc tiệc nhỏ trong phòng được không?',
-     '<p>Bạn cần nhắn chi nhánh để được Qhome chấp thuận trước. Phòng không dùng để tổ chức tiệc tùng hoặc sự kiện khi chưa được đồng ý.</p>'),
+     '<p>Bạn cần nhắn chi nhánh để được Q Home chấp thuận trước. Phòng không dùng để tổ chức tiệc tùng hoặc sự kiện khi chưa được đồng ý.</p>'),
     ('Có giờ yên tĩnh không?',
      '<p>Có. Từ 22:00 đến 08:00, bạn giữ yên lặng giúp bọn mình để mọi phòng đều được nghỉ ngơi trọn vẹn.</p>'),
     ('Mang thú cưng theo được không?',
-     '<p>Rất tiếc là không. Qhome hiện chưa nhận thú cưng.</p>'),
+     '<p>Rất tiếc là không. Q Home hiện chưa nhận thú cưng.</p>'),
     ('Có được mang đồ ăn, thức uống từ bên ngoài vào không?',
      '<p>Được. Bạn cứ mang theo món mình thích, chỉ cần giữ phòng sạch sẽ giúp bọn mình.</p>'),
     ('Mình cần lưu ý gì để giữ phòng?',
@@ -697,7 +727,7 @@ FAQ = [
     ('Huỷ phòng có mất phí không?',
      '<p>Tuỳ thời điểm bạn báo huỷ so với giờ nhận phòng:</p><ul><li><b>Từ 72 tiếng trở lên:</b> huỷ miễn phí, và được hỗ trợ dời lịch trong vòng 2 tuần tính từ ngày huỷ.</li><li><b>Trong vòng 48 tiếng:</b> không hoàn cọc, chỉ hỗ trợ dời lịch trong vòng 2 tuần tính từ thời điểm đặt phòng.</li><li><b>Trong vòng 12 tiếng:</b> không hoàn cọc và không dời lịch.</li></ul>'),
     ('Mình muốn dời lịch thay vì huỷ thì sao?',
-     '<p>Bạn nhắn chi nhánh càng sớm càng tốt. Nếu báo trước giờ nhận phòng hơn 12 tiếng, bạn được dời lịch trong vòng 2 tuần. Trong vòng 12 tiếng trước giờ nhận phòng thì Qhome không hỗ trợ dời lịch.</p>'),
+     '<p>Bạn nhắn chi nhánh càng sớm càng tốt. Nếu báo trước giờ nhận phòng hơn 12 tiếng, bạn được dời lịch trong vòng 2 tuần. Trong vòng 12 tiếng trước giờ nhận phòng thì Q Home không hỗ trợ dời lịch.</p>'),
   ]),
 ]
 FEES = [('Thêm người', '100.000đ', 'mỗi người, quá 2 khách'), ('Khách ghé thăm', '100.000đ', 'từ 2 tiếng trở lên'), ('Giường phụ', '100.000đ', 'mỗi giường'), ('Trẻ dưới 6 tuổi', 'Miễn phí', 'ở chung với người lớn')]
@@ -721,8 +751,8 @@ def faq_main():
     <div class="wrap fq-hero-in">
       <nav class="crumbs" aria-label="Vị trí trang" data-load><a href="{HOME_URL}">Trang chủ</a><span aria-hidden="true">/</span><span aria-current="page">Hỏi đáp</span></nav>
       <p class="eyebrow" data-load>Hỏi đáp · Nội quy lưu trú</p>
-      <h1 class="display"><span class="line"><span>Hỏi gì,</span></span><span class="line"><span><span class="ital">Qhome cũng trả lời.</span></span></span></h1>
-      <p class="lede" data-load>Những điều bạn hay thắc mắc trước khi về nhà: giờ nhận phòng, phụ thu, nội quy và chính sách huỷ. Tất cả gói gọn từ nội quy lưu trú của Qhome.</p>
+      <h1 class="display"><span class="line"><span>Hỏi gì,</span></span><span class="line"><span><span class="ital">Q Home cũng trả lời.</span></span></span></h1>
+      <p class="lede" data-load>Những điều bạn hay thắc mắc trước khi về nhà: giờ nhận phòng, phụ thu, nội quy và chính sách huỷ. Tất cả gói gọn từ nội quy lưu trú của Q Home.</p>
       <label class="fq-search" data-load><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><input type="search" id="fqSearch" placeholder="Tìm nhanh, ví dụ: thú cưng, huỷ phòng, giường phụ…" aria-label="Tìm câu hỏi"></label>
     </div>
   </section>
@@ -757,7 +787,7 @@ def faq_ld():
 def page_faq():
     body = (f'<body data-page="faq">\n{P["defs"]}\n\n{P["badge"]}\n\n{header("faq")}\n{mobile_menu("faq")}\n'
             f'{faq_main()}\n\n{footer("faq")}\n\n{CT.widget(B)}\n\n{P["toast"]}\n\n{faq_ld()}{SCRIPTS}</body>\n</html>\n')
-    return head('Hỏi đáp & nội quy · Qhome Staycation', 'Giờ nhận phòng, phụ thu, nội quy và chính sách huỷ phòng tại Q Home Staycation. Câu trả lời nhanh cho những thắc mắc thường gặp.', 'faq', -1) + body
+    return head('Hỏi đáp & nội quy · Q Home Staycation', 'Giờ nhận phòng, phụ thu, nội quy và chính sách huỷ phòng tại Q Home Staycation. Câu trả lời nhanh cho những thắc mắc thường gặp.', 'faq', -1) + body
 
 # ---------------- write ----------------
 os.makedirs(f'{ROOT}/site/assets/img', exist_ok=True)
@@ -805,7 +835,7 @@ pv = home
 pv = pv.replace('<!doctype html>\n<html lang="vi">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n', '')
 pv = pv.replace('</head>\n<body data-page="home">', '<div hidden></div>').replace('</body>\n</html>\n', '')
 pv = pv.replace('<div hidden></div>', '<script>document.body.dataset.page="home"</script>')
-pv = pv.replace('<title>Qhome Staycation</title>\n', '<title>Qhome Staycation</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n', 1)
+pv = pv.replace('<title>Q Home Staycation</title>\n', '<title>Q Home Staycation</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n', 1)
 if not IS_NETLIFY: open(f'{ROOT}/index.html', 'w', encoding='utf-8').write(pv)
 print('built', len(home), len(story), len(css), len(js))
 

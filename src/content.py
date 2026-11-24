@@ -3,6 +3,7 @@ sinh CSS ảnh động và các khối HTML phụ thuộc dữ liệu chi nhánh
 import json, os, re, html as _html
 
 ROOT = os.environ.get('QH_ROOT', os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+FACEBOOK_URL = "https://www.facebook.com/qhome.booking"
 ARROW = '<svg><use href="#arrow"/></svg>'
 
 DEFAULT_COVER = {'p-bc3': 'bc3', 'p-svh': 'svh', 'p-32': '32', 'p-ldh': 'ldh', 'p-tqd': 'tqd'}
@@ -10,8 +11,8 @@ DEFAULT_TEXT = {
     'Bàu Cát': ('Sáng, sạch và đầy màu', 'Phòng trắng sáng, đầu giường nhung và gạch ốp mỗi phòng một màu: đỏ, hồng, xanh rêu, xanh navy. 10 phòng Deluxe và Premium.'),
     'Sư Vạn Hạnh': ('Rộng rãi, tối giản, có bồn tắm', 'Phòng rộng 20–32m², tường trắng, sàn gỗ và tranh nghệ thuật. Ba phòng Suite có bồn tắm nằm và ban công.'),
     'Ba Tháng Hai': ('Một khu vườn trong phòng', 'Gương lượn sóng, tường sọc và ban công ở hầu hết các phòng. Suite 401 có bồn tắm đá giữa vườn cây. Chi nhánh duy nhất có đủ bốn hạng phòng.'),
-    'Lê Đại Hành': ('Ấm như phòng khách nhà mình', 'Sofa xanh rêu, rèm vải mỏng và đèn ngủ vàng. Gần gũi, giản dị, ngay giữa Quận 11.'),
-    'Thích Quảng Đức': ('Mỗi phòng một sắc màu', 'Tường hồng, cam, xanh rêu và máy chiếu 100 inch. Có bếp chung, bãi đậu xe hơi và khu vườn có ghế ngồi, trong hẻm yên tĩnh ở Phú Nhuận.'),
+    'Lê Đại Hành': ('Ấm như phòng khách nhà mình', 'Sofa xanh rêu, rèm vải mỏng và đèn ngủ vàng. Gần gũi, giản dị, ở Phường Phú Thọ.'),
+    'Thích Quảng Đức': ('Mỗi phòng một sắc màu', 'Tường hồng, cam, xanh rêu và máy chiếu 100 inch. Có bếp chung, bãi đậu xe hơi và khu vườn có ghế ngồi, trong hẻm yên tĩnh ở Phường Đức Nhuận.'),
 }
 TIERS = ['Standard', 'Deluxe', 'Premium', 'Suite']
 
@@ -157,10 +158,11 @@ def widget(B):
   </div>
   <div class="cw-panel" id="cwChat" role="dialog" aria-labelledby="cwChatT" hidden>
     <div class="cw-head"><div><p class="cw-eyebrow">Nhắn tin</p><p class="cw-title" id="cwChatT">Nhắn cho chi nhánh nào?</p></div><button class="cw-x" type="button" data-cw-close aria-label="Đóng"><svg><use href="#i-close"/></svg></button></div>
-    <a class="cw-mess" href="https://m.me/qhome.staycation" target="_blank" rel="noopener"><span class="cw-ic cw-ic-mess"><svg><use href="#i-chat"/></svg></span><span class="cw-t"><b>Messenger fanpage</b><small>Fanpage chung của Qhome</small></span><svg class="cw-go"><use href="#arrow"/></svg></a>
+    <a class="cw-mess" href="https://m.me/qhome.staycation" target="_blank" rel="noopener"><span class="cw-ic cw-ic-mess"><svg><use href="#i-chat"/></svg></span><span class="cw-t"><b>Messenger fanpage</b><small>Fanpage chung của Q Home</small></span><svg class="cw-go"><use href="#arrow"/></svg></a>
     <ul class="cw-list">{chat}</ul>
   </div>
   <div class="cw-btns">
+    <button class="btn btn-solid cw-book" type="button" id="cwBookBtn" aria-expanded="false" aria-controls="cwChat">Đặt ngay</button>
     <button class="cw-btn cw-btn-chat" type="button" id="cwChatBtn" aria-expanded="false" aria-controls="cwChat"><svg class="ic"><use href="#i-chat"/></svg><svg class="x"><use href="#i-close"/></svg><span class="cw-tip">Nhắn tin</span></button>
     <button class="cw-btn cw-btn-call" type="button" id="cwCallBtn" aria-expanded="false" aria-controls="cwCall"><svg class="ic"><use href="#i-phone"/></svg><svg class="x"><use href="#i-close"/></svg><span class="cw-tip">Gọi chi nhánh</span></button>
   </div>

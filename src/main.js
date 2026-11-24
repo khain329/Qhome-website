@@ -123,16 +123,29 @@
 
   /* ---------- widget gọi / nhắn tin ---------- */
   const cwBtns = { call: $('#cwCallBtn'), chat: $('#cwChatBtn') }, cwPanels = { call: $('#cwCall'), chat: $('#cwChat') };
-  let cwOpen = null;
-  function cwSet(which){
+  const cwBook = $('#cwBookBtn');
+  let cwOpen = null, cwFrom = null;
+  function cwSet(which, from){
     if (!cwBtns.call) return;
     cwOpen = which;
+    cwFrom = which ? from || cwBtns[which] : null;
     Object.keys(cwBtns).forEach(k => { const on = k === which; cwBtns[k].setAttribute('aria-expanded', on); cwPanels[k].hidden = !on; });
-    if (which && finePointer) setTimeout(() => { const f = cwPanels[which].querySelector('.cw-row, .cw-mess'); if (f) f.focus({ preventScroll: true }); }, 60);
+    if (cwBook) cwBook.setAttribute('aria-expanded', which === 'chat');
+    if (which && (finePointer || from === cwBook)) setTimeout(() => {
+      if (cwOpen !== which) return;
+      const f = cwPanels[which].querySelector('.cw-row, .cw-mess');
+      if (f) f.focus({ preventScroll: true });
+    }, 60);
+  }
+  function cwClose(){
+    const from = cwFrom;
+    cwSet(null);
+    if (from) from.focus();
   }
   if (cwBtns.call) {
     Object.keys(cwBtns).forEach(k => cwBtns[k].addEventListener('click', e => { e.stopPropagation(); cwSet(cwOpen === k ? null : k); }));
-    $$('[data-cw-close]').forEach(b => b.addEventListener('click', () => { const k = cwOpen; cwSet(null); if (k) cwBtns[k].focus(); }));
+    if (cwBook) cwBook.addEventListener('click', () => cwSet(cwOpen === 'chat' ? null : 'chat', cwBook));
+    $$('[data-cw-close]').forEach(b => b.addEventListener('click', cwClose));
     document.addEventListener('click', e => { if (cwOpen && !e.target.closest('#cw')) cwSet(null); });
     $$('[data-open-cw]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); cwSet(b.dataset.openCw); }));
   }
@@ -179,8 +192,7 @@
   }
   if ($('#brRooms')) $('#brRooms').addEventListener('click', e => {
     const t = e.target.closest('.rtile'); if (!t) return;
-    const b = BR[brCur]; const rooms = b.rooms;
-    openLb(rooms.map(r => ({ v: r.pv, cap: 'Phòng ' + r.no + ' · ' + r.tier + (r.m2 ? ' · ' + r.m2 + 'm²' : '') + ' · ' + b.name })), +t.dataset.room, t);
+    openRoomLb(BR[brCur], t);
   });
   brTabs.forEach((t, k) => {
     t.addEventListener('click', () => selectBranch(k, true));
@@ -193,7 +205,7 @@
   /* trang chi nhánh riêng */
   if (page === 'branch') { brCur = +(document.body.dataset.branch || 0); if ($('#brRooms')) renderRooms(BR[brCur], false); }
 
-  /* ---------- đo lượt bấm liên hệ (Google Analytics): gọi, Zalo, Messenger, chỉ đường, sao chép số ---------- */
+  /* ---------- đo lượt bấm liên hệ (Google Analytics) ---------- */
   const track = (method, branch, url) => { try { if (window.gtag) window.gtag('event', 'contact_click', { contact_method: method, branch: branch || 'Chung', link_url: url || '', page_type: page }); } catch (e) {} };
   const brOf = str => { const d = String(str || '').replace(/\D/g, ''); const b = d.length >= 9 ? BR.find(x => x.phone && d.includes(x.phone.slice(1))) : null; return b ? b.name : ''; };
   document.addEventListener('click', e => {
@@ -204,8 +216,12 @@
       if (/^tel:/i.test(h)) m = 'call';
       else if (/zalo\.me/i.test(h)) m = 'zalo';
       else if (/m\.me\/|messenger\.com|facebook\.com\/messages/i.test(h)) m = 'messenger';
+      else if (/^https:\/\/www\.facebook\.com\//i.test(h)) m = 'facebook';
       else if (/maps\.app\.goo\.gl|google\.[^/]+\/maps|goo\.gl\/maps/i.test(h)) m = 'directions';
-      if (m) { const b = m === 'directions' ? (BR.find(x => x.map === h) || {}).name : brOf(h); track(m, b, h); }
+      if (m) {
+        const branch = a.dataset.contactBranch || (m === 'directions' ? BR.find(x => x.map === h)?.name : brOf(h));
+        track(m, branch, h);
+      }
       return;
     }
     const c = e.target.closest('[data-copy]'); if (c) track('copy_phone', brOf(c.dataset.copy), '');
@@ -340,6 +356,8 @@
       $('#rsName').textContent = b.name; $('#rsTag').textContent = b.tagline || '';
       $('#rsFeat').innerHTML = (b.feat || []).map(x => '<li>' + x + '</li>').join(''); $('#rsFeat').hidden = !(b.feat || []).length;
       $('#rsPage').href = b.slug + '.html'; $('#rsZalo').href = 'https://zalo.me/' + b.phone;
+      $('#rsZalo').hidden = !b.phone;
+      $('#rsZalo').dataset.contactBranch = $('#rsFacebook').dataset.contactBranch = b.name;
       $('#rsRooms').innerHTML = TIERS.concat([...new Set(rooms.map(r => r.tier))].filter(t => !TIERS.includes(t))).filter(t => rooms.some(r => r.tier === t)).map(t => {
         const list = rooms.map((r, k) => [r, k]).filter(([r]) => r.tier === t);
         return '<div class="rgroup" data-tier="' + t.toLowerCase() + '"><p class="rgroup-t">' + t + ' · ' + list.length + ' phòng</p><div class="rgrid">' + list.map(([r, k]) =>
@@ -363,8 +381,8 @@
     $$('.rc-open[data-open]').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); openSheet(+b.dataset.open, b); }));
     $$('[data-close]', sheet).forEach(x => x.addEventListener('click', closeSheet));
     $('#rsRooms').addEventListener('click', e => {
-      const t = e.target.closest('.rtile'); if (!t) return; const b = BR[sheetBr];
-      openLb(b.rooms.map(r => ({ v: r.pv, cap: 'Phòng ' + r.no + ' · ' + r.tier + (r.m2 ? ' · ' + r.m2 + 'm²' : '') + ' · ' + b.name })), +t.dataset.room, t);
+      const t = e.target.closest('.rtile'); if (!t) return;
+      openRoomLb(BR[sheetBr], t);
     });
     sheet.addEventListener('keydown', e => {
       if (e.key === 'Escape' && !lbOpen()) { e.stopPropagation(); closeSheet(); }
@@ -390,18 +408,47 @@
 
   /* ---------- lightbox dùng chung: gallery & poster phòng ---------- */
   const lb = $('#lb'); let lbList = [], lbIdx = 0, lbFrom = null;
+  const lbBooking = $('#lbBooking'), lbZalo = $('#lbZalo'), lbFacebook = $('#lbFacebook');
+  function openRoomLb(branch, tile){
+    const list = branch.rooms.map(r => ({
+      v: r.pv, branch,
+      cap: 'Phòng ' + r.no + ' · ' + r.tier + (r.m2 ? ' · ' + r.m2 + 'm²' : '') + ' · ' + branch.name
+    }));
+    openLb(list, +tile.dataset.room, tile);
+  }
   function lbShow(i){
     lbIdx = (i + lbList.length) % lbList.length; const it = lbList[lbIdx], img = $('#lbImg');
     img.dataset.v = it.v; img.setAttribute('style', it.css || ''); $('#lbCap').textContent = it.cap || ''; $('#lbCap').hidden = !it.cap; $('#lbCount').textContent = (lbIdx + 1) + ' / ' + lbList.length;
+    const branch = it.branch;
+    lbBooking.hidden = !branch;
+    lb.classList.toggle('has-booking', !!branch);
+    lbZalo.hidden = !branch?.phone;
+    if (branch?.phone) lbZalo.href = 'https://zalo.me/' + branch.phone;
+    else lbZalo.removeAttribute('href');
+    lbZalo.dataset.contactBranch = lbFacebook.dataset.contactBranch = branch?.name || '';
     if (hasGsap && !reduce) gsap.fromTo(img, { scale: .96, opacity: 0 }, { scale: 1, opacity: 1, duration: .5, ease: 'power3.out' });
   }
   function openLb(list, i, from){ if (!lb) return; lbList = list; lbFrom = from || null; lbShow(i); lb.classList.add('open'); if (lenis) lenis.stop(); $('#lbClose').focus(); }
   function closeLb(){ lb.classList.remove('open'); if (lenis && !root.classList.contains('sheet-open')) lenis.start(); if (lbFrom) lbFrom.focus(); }
   const lbOpen = () => !!lb && lb.classList.contains('open');
-  const lbKey = e => { if (e.key === 'Escape') closeLb(); if (e.key === 'ArrowRight') lbShow(lbIdx + 1); if (e.key === 'ArrowLeft') lbShow(lbIdx - 1); };
+  const lbKey = e => {
+    if (e.key === 'Escape') closeLb();
+    if (e.key === 'ArrowRight') lbShow(lbIdx + 1);
+    if (e.key === 'ArrowLeft') lbShow(lbIdx - 1);
+    if (e.key === 'Tab') {
+      const controls = $$('button, a[href]', lb).filter(el => el.offsetParent);
+      const first = controls[0], last = controls[controls.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  };
   if (lb) {
     const items = $$('.g-item');
-    items.forEach((it, i) => it.addEventListener('click', () => openLb(items.map(x => ({ v: x.dataset.v, cap: '', css: (x.querySelector('.ph') || x).getAttribute('style') || '' })), i, it)));
+    items.forEach((it, i) => it.addEventListener('click', () => openLb(items.map(x => ({
+      v: x.dataset.v,
+      branch: BR.find(b => b.slug === x.dataset.branchSlug),
+      css: (x.querySelector('.ph') || x).getAttribute('style') || ''
+    })), i, it)));
     $('#lbClose').addEventListener('click', closeLb);
     $('#lbPrev').addEventListener('click', () => lbShow(lbIdx - 1));
     $('#lbNext').addEventListener('click', () => lbShow(lbIdx + 1));
@@ -412,7 +459,7 @@
   }
 
   addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeDd(); if (cwOpen) { const k = cwOpen; cwSet(null); cwBtns[k].focus(); } if (root.classList.contains('menu-open')) setMenu(false); }
+    if (e.key === 'Escape') { closeDd(); if (cwOpen) cwClose(); if (root.classList.contains('menu-open')) setMenu(false); }
     if (lbOpen()) lbKey(e);
   });
 
@@ -557,25 +604,10 @@
       .fromTo('.s-hero-arch', { clipPath: 'inset(100% 0% 0% 0% round 999px 999px 18px 18px)' }, { clipPath: 'inset(0% 0% 0% 0% round 999px 999px 18px 18px)', duration: 1.5, ease: 'power3.inOut' }, 0)
       .from('.s-hero [data-load]', { y: 24, opacity: 0, duration: 1, stagger: .08 }, .4);
 
-    /* logo tự vẽ theo cuộn */
+    /* Logo hiện ngay, phần chữ chuyển nhẹ khi vào khung nhìn. */
     if (has('.s-logo')) {
-      const sec = $('.s-logo'), notes = $$('.s-note'), marks = [0, .5, .76];
-      sec.classList.add('js-dim');
-      const setOn = p => notes.forEach((n, k) => n.classList.toggle('on', p >= marks[k] + .001));
-      const build = st => {
-        const t = gsap.timeline({ scrollTrigger: Object.assign({ scrub: 1, onUpdate: self => setOn(self.progress), onLeaveBack: () => setOn(-1) }, st) });
-        t.fromTo('.s-arch', { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: 'none', duration: .45 }, 0)
-         .fromTo('.s-roof', { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: 'none', duration: .16 }, .5)
-         .fromTo('.s-fill', { opacity: 0 }, { opacity: 1, ease: 'none', duration: .14 }, .6)
-         .fromTo('.s-word', { opacity: 0, y: 10 }, { opacity: 1, y: 0, ease: 'none', duration: .14 }, .76)
-         .fromTo('.pin1', { opacity: 0, scale: .5 }, { opacity: 1, scale: 1, duration: .06, transformOrigin: '50% 50%' }, 0)
-         .fromTo('.pin2', { opacity: 0, scale: .5 }, { opacity: 1, scale: 1, duration: .06, transformOrigin: '50% 50%' }, .5)
-         .fromTo('.pin3', { opacity: 0, scale: .5 }, { opacity: 1, scale: 1, duration: .06, transformOrigin: '50% 50%' }, .76)
-         .to({}, { duration: .1 });
-        return t;
-      };
-      mm.add('(min-width: 901px)', () => { build({ trigger: '.s-logo', start: 'top top', end: '+=150%', pin: true }); });
-      mm.add('(max-width: 900px)', () => { build({ trigger: '.s-mark', start: 'top 80%', end: 'bottom 40%' }); });
+      gsap.from('.s-logo-text', { opacity: .75, duration: .55, ease: 'power2.out',
+        scrollTrigger: { trigger: '.s-logo-text', start: 'top 90%', once: true } });
     }
 
     /* tuyên ngôn: chữ sáng dần theo cuộn */
@@ -639,9 +671,10 @@
 
   /* ===================== DÙNG CHUNG ===================== */
   $$('[data-split]').forEach(h => {
+    const breaks = /([^\S\u00a0]+)/;
     const words = []; h.childNodes.forEach(n => {
-      if (n.nodeType === 3) n.textContent.split(/(\s+)/).forEach(w => w && words.push(w.trim() ? '<span class="w"><span>' + w + '</span></span>' : ' '));
-      else { const tag = n.tagName.toLowerCase(); n.textContent.split(/(\s+)/).forEach(w => w && words.push(w.trim() ? '<span class="w"><span><' + tag + '>' + w + '</' + tag + '></span></span>' : ' ')); }
+      if (n.nodeType === 3) n.textContent.split(breaks).forEach(w => w && words.push(w.trim() ? '<span class="w"><span>' + w + '</span></span>' : ' '));
+      else { const tag = n.tagName.toLowerCase(); n.textContent.split(breaks).forEach(w => w && words.push(w.trim() ? '<span class="w"><span><' + tag + '>' + w + '</' + tag + '></span></span>' : ' ')); }
     });
     h.innerHTML = words.join('');
     $$('.w', h).forEach(w => { w.style.display = 'inline-block'; w.style.overflow = 'hidden'; w.style.verticalAlign = 'top'; w.style.paddingBottom = '.1em'; w.style.marginBottom = '-.1em'; w.firstChild.style.display = 'inline-block'; });
